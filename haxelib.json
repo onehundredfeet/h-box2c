@@ -1,0 +1,11 @@
+{
+	"name" : "h-box2c",
+	"url" : "https://github.com/onehundredfeet/h-box2c",
+	"license" : "MIT",
+	"contributors" : ["onehundredfeet"],
+	"description" : "box2c Physics API for Haxe using h-idl",
+	"version" : "0.1.0",
+	"releasenote" : "",
+	"classPath": "lib/",
+	"dependencies": { "hl-idl" :""}
+}

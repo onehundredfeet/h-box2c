@@ -1,0 +1,6 @@
+[submodule "ext/hl-idl"]
+	path = ext/hl-idl
+	url = https://github.com/onehundredfeet/hl-idl.git
+[submodule "ext/box2c"]
+	path = ext/box2c
+	url = https://github.com/onehundredfeet/box2c.git
