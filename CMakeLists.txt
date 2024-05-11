@@ -8,7 +8,7 @@ endif()
 include(${PATH_TO_IDL}/h-idl-preamble.cmake)
 
 #you need to modify this yourself
-project(jolt)
+project(box2c)
 
 
 
@@ -22,7 +22,7 @@ set( PROJECT_ADDITIONAL_SOURCES
 )
 
 set (PROJECT_ADDITIONAL_INCLUDES
-"${CMAKE_CURRENT_SOURCE_DIR}/ext/jolt"
+"${CMAKE_CURRENT_SOURCE_DIR}/ext/box2c/include"
 )
 
 
@@ -37,12 +37,12 @@ endif()
 
 
 set (PROJECT_ADDITIONAL_LIB_DIRS
-#"build/jolt"
+#"build/box2c"
 )
 
 
 set(PROJECT_ADDITIONAL_LIBS
-"${CMAKE_CURRENT_SOURCE_DIR}/build_jolt/libJolt.a"
+"${CMAKE_CURRENT_SOURCE_DIR}/build_box2c/src/libbox2d.a"
 )
 
 

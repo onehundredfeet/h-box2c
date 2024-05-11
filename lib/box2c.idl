@@ -1,6 +1,64 @@
 
 
 
-interface Globals {
 
+[Internal="b2WorldDef"]
+interface WorldDef {
+	void WorldDef();
+	/// Gravity vector. Box2D has no up-vector defined.
+	//b2Vec2 gravity;
+
+	/// Restitution velocity threshold, usually in m/s. Collisions above this
+	/// speed have restitution applied (will bounce).
+	attribute float restitutionThreshold;
+
+	/// This parameter controls how fast overlap is resolved and has units of meters per second
+	attribute float contactPushoutVelocity;
+
+	/// Contact stiffness. Cycles per second.
+	attribute float contactHertz;
+
+	/// Contact bounciness. Non-dimensional.
+	attribute float contactDampingRatio;
+
+	/// Joint stiffness. Cycles per second.
+	attribute float jointHertz;
+
+	/// Joint bounciness. Non-dimensional.
+	attribute float jointDampingRatio;
+
+	/// Can bodies go to sleep to improve performance
+	attribute bool enableSleep;
+
+	/// Enable continuous collision
+	attribute bool enableContinous;
+
+	/// Capacity for bodies. This may not be exceeded.
+	attribute int bodyCapacity;
+
+	/// initial capacity for shapes
+	attribute int shapeCapacity;
+
+	/// Capacity for contacts. This may not be exceeded.
+	attribute int contactCapacity;
+
+	/// Capacity for joints
+	attribute int jointCapacity;
+
+	/// Stack allocator capacity. This controls how much space box2d reserves for per-frame calculations.
+	/// Larger worlds require more space. b2Counters can be used to determine a good capacity for your
+	/// application.
+	attribute int stackAllocatorCapacity;
+
+	/// task system hookup
+	attribute uint workerCount;
+
+	/// function to spawn task
+	//b2EnqueueTaskCallback* enqueueTask;
+
+	/// function to finish a task
+	//b2FinishTaskCallback* finishTask;
+
+	/// User context that is provided to enqueueTask and finishTask
+	//void* userTaskContext;
 };
