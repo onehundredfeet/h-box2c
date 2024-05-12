@@ -1,9 +1,10 @@
+typedef WorldId int;
 
 
 
 [Internal="hbox2c::WorldContext"]
 interface WorldContext {
-	void WorldContext();
+	void WorldContext(int workerCount);
 	
 	void setGravity(float x, float y);
 
@@ -36,5 +37,8 @@ interface WorldContext {
 	attribute bool enableContinous;
 
 	/// task system hookup
-	attribute uint workerCount;
+	//attribute uint workerCount;
+
+	WorldId createWorld();
+	void destroyWorld(WorldId id);
 };

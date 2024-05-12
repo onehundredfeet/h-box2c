@@ -29,8 +29,6 @@ class SampleTask : public enki::ITaskSet
 	void* m_taskContext = nullptr;
 };
 
-
-
 class WorldContext : public b2WorldDef {
     public:
 	enki::TaskScheduler m_scheduler;
@@ -38,10 +36,15 @@ class WorldContext : public b2WorldDef {
 	int32_t m_taskCount;
 	int m_threadCount;
 
-    WorldContext() {
+    WorldContext(int workerCount) {
         enqueueTask = EnqueueTask;
         finishTask = FinishTask;
         userTaskContext = this;
+        m_threadCount = 1 + workerCount;
+        m_taskCount = 0;
+        this->workerCount = workerCount;
+        this->enableSleep = true;
+        
     }
     void setGravity(float x, float y) {
         gravity = {x, y};
@@ -81,58 +84,19 @@ class WorldContext : public b2WorldDef {
     }
 
 
-/*
-/// Gravity vector. Box2D has no up-vector defined.
-	b2Vec2 gravity;
+    uint32_t createWorld() {
+        b2WorldId id = b2CreateWorld(this);
+        uint32_t value = id.index1 << 16 | id.revision;
+        return value;
+    }
 
-	/// Restitution velocity threshold, usually in m/s. Collisions above this
-	/// speed have restitution applied (will bounce).
-	float restitutionThreshold;
-
-	/// This parameter controls how fast overlap is resolved and has units of meters per second
-	float contactPushoutVelocity;
-
-	/// Threshold velocity for hit events. Usually meters per second.
-	float hitEventThreshold;
-
-	/// Contact stiffness. Cycles per second.
-	float contactHertz;
-
-	/// Contact bounciness. Non-dimensional.
-	float contactDampingRatio;
-
-	/// Joint stiffness. Cycles per second.
-	float jointHertz;
-
-	/// Joint bounciness. Non-dimensional.
-	float jointDampingRatio;
-
-	/// Can bodies go to sleep to improve performance
-	bool enableSleep;
-
-	/// Enable continuous collision
-	bool enableContinous;
-
-	/// Number of workers to use with the provided task system. Box2D performs best when using only
-	///	performance cores and accessing a single L2 cache. Efficiency cores and hyper-threading provide
-	///	little benefit and may even harm performance.
-	int32_t workerCount;
-
-	/// Function to spawn tasks
-	b2EnqueueTaskCallback* enqueueTask;
-
-	/// Function to finish a task
-	b2FinishTaskCallback* finishTask;
-
-	/// User context that is provided to enqueueTask and finishTask
-	void* userTaskContext;
-*/
-
-
+    void destroyWorld( uint32_t world) {
+        b2WorldId id;
+        id.index1 = world >> 16;
+        id.revision = world & 0xFFFF;
+        b2DestroyWorld(id);
+    }
 };
-
-
-
 
 }
 
@@ -140,17 +104,7 @@ class WorldContext : public b2WorldDef {
 /*
 b2Vec2 gravity = {0.0f, -10.0f};
 
-	m_scheduler.Initialize(settings.workerCount);
-	m_taskCount = 0;
 
-	m_threadCount = 1 + settings.workerCount;
-
-	b2WorldDef worldDef = b2DefaultWorldDef();
-	worldDef.workerCount = settings.workerCount;
-	worldDef.enqueueTask = EnqueueTask;
-	worldDef.finishTask = FinishTask;
-	worldDef.userTaskContext = this;
-	worldDef.enableSleep = settings.enableSleep;
 
 	m_worldId = b2CreateWorld(&worldDef);
 	m_textLine = 30;
