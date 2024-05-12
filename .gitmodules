@@ -4,3 +4,6 @@
 [submodule "ext/box2c"]
 	path = ext/box2c
 	url = https://github.com/onehundredfeet/box2c.git
+[submodule "ext/enkiTS"]
+	path = ext/enkiTS
+	url = https://github.com/dougbinks/enkiTS.git

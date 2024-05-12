@@ -19,10 +19,12 @@ include(${PATH_TO_IDL}/h-idl-defines.cmake)
 
 
 set( PROJECT_ADDITIONAL_SOURCES 
+"${CMAKE_CURRENT_SOURCE_DIR}/ext/enkiTS/src/TaskScheduler.cpp"
 )
 
 set (PROJECT_ADDITIONAL_INCLUDES
 "${CMAKE_CURRENT_SOURCE_DIR}/ext/box2c/include"
+"${CMAKE_CURRENT_SOURCE_DIR}/ext/enkiTS/src"
 )
 
 
