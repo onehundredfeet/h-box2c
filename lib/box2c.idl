@@ -1,6 +1,80 @@
 typedef WorldId int;
 
+/// The body type.
+/// static: zero mass, zero velocity, may be manually moved
+/// kinematic: zero mass, non-zero velocity set by user, moved by solver
+/// dynamic: positive mass, non-zero velocity determined by forces, moved by solver
+[Internal="b2BodyType", Prefix="b2_"]
+enum BodyType
+{
+	"staticBody",
+	"kinematicBody",
+	"dynamicBody"
+};
 
+
+/// A body definition holds all the data needed to construct a rigid body.
+/// You can safely re-use body definitions. Shapes are added to a body after construction.
+[Internal="hbox2c::BodyDef"]
+interface BodyDef {
+	/// The body type: static, kinematic, or dynamic.
+	/// Note: if a dynamic body would have zero mass, the mass is set to one.
+	attribute BodyType type;
+
+	/// The world position of the body. Avoid creating bodies at the origin
+	/// since this can lead to many overlapping shapes.
+	void setPosition( float x, float y);
+
+	/// The world angle of the body in radians.
+	attribute float angle;
+
+	/// The linear velocity of the body's origin in world co-ordinates.
+	void setLinearVelocity( float x, float y);
+
+	/// The angular velocity of the body.
+	attribute float angularVelocity;
+
+	/// Linear damping is use to reduce the linear velocity. The damping parameter
+	/// can be larger than 1.0f but the damping effect becomes sensitive to the
+	/// time step when the damping parameter is large.
+	attribute float linearDamping;
+
+	/// Angular damping is use to reduce the angular velocity. The damping parameter
+	/// can be larger than 1.0f but the damping effect becomes sensitive to the
+	/// time step when the damping parameter is large.
+	attribute float angularDamping;
+
+	/// Scale the gravity applied to this body.
+	attribute float gravityScale;
+
+	/// Sleep velocity threshold, default is 0.05 meter per second
+	attribute float sleepThreshold;
+
+	/// Use this to store application specific body data.
+	void setUserData( dynamic data );
+
+	/// Set this flag to false if this body should never fall asleep. Note that
+	/// this increases CPU usage.
+	attribute bool enableSleep;
+
+	/// Is this body initially awake or sleeping?
+	attribute bool isAwake;
+
+	/// Should this body be prevented from rotating? Useful for characters.
+	attribute bool fixedRotation;
+
+	/// Treat this body as high speed object that performs continuous collision detection
+	/// against dynamic and kinematic bodies, but not other bullet bodies.
+	attribute bool isBullet;
+
+	/// Does this body start out enabled?
+	attribute bool isEnabled;
+
+	/// Automatically compute mass and related properties on this body from shapes.
+	/// Triggers whenever a shape is add/removed/changed. Default is true.
+	attribute bool automaticMass;
+
+};
 
 [Internal="hbox2c::WorldContext"]
 interface WorldContext {

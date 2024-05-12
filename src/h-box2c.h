@@ -8,12 +8,15 @@
 #include "box2d/math_cpp.h"
 #include "box2d/timer.h"
 #include "TaskScheduler.h"
+#include "hl-idl-helpers.hpp"
 
 namespace hbox2c
 {
 
 constexpr int32_t maxTasks = 64;
 constexpr int32_t maxThreads = 64;
+
+
 
 class SampleTask : public enki::ITaskSet
 {
@@ -28,6 +31,38 @@ class SampleTask : public enki::ITaskSet
 	b2TaskCallback* m_task = nullptr;
 	void* m_taskContext = nullptr;
 };
+
+class BodyDef : public b2BodyDef {
+    public:
+    BodyDef(){
+        type = b2_staticBody;
+        position = {0, 0};
+        linearVelocity = {0, 0};
+        angle = 0.0;
+        angularVelocity = 0.0;
+        linearDamping = 0.0;
+        angularDamping = 0.0;
+        gravityScale = 1.0f;
+        sleepThreshold = 0.05f * b2_lengthUnitsPerMeter;
+        enableSleep = true;
+        fixedRotation = false;
+        automaticMass = true;
+        isAwake = true;
+        isBullet = false;
+        isEnabled = true;
+    }
+
+    void setPosition(float x, float y) {
+        position = {x, y};
+    }
+    void setLinearVelocity(float x, float y) {
+        linearVelocity = {x, y};
+    }
+    void setUserData(vdynamic* data) {
+        userData = data;
+    }
+};
+
 
 class WorldContext : public b2WorldDef {
     public:
