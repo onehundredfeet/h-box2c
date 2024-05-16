@@ -10,13 +10,295 @@
 #include "TaskScheduler.h"
 #include "hl-idl-helpers.hpp"
 
+#include <cmath>
+
 namespace hbox2c
 {
 
 constexpr int32_t maxTasks = 64;
 constexpr int32_t maxThreads = 64;
 
+class Transform : public b2Transform {
+    public:
+    Transform() {
+        p = {0, 0};
+        q = {1,0};
+    }
+    Transform(float x, float y) {
+        p = {x, y};
+        q = {1,0};
+    }
+    Transform(float x, float y, float angle) {
+        p = {x, y};
+        q.c = std::cos(angle);
+        q.s = std::sin(angle);
+    }
+};
 
+class BodyEvents : public b2BodyEvents {
+    public:
+    BodyEvents() {
+        moveEvents = nullptr;
+	    moveCount = 0;
+    }
+
+    void getMove(int index, b2BodyMoveEvent* event) {
+        *event = moveEvents[index];
+    }
+};
+
+class SensorEvents : public b2SensorEvents {
+    public:
+    SensorEvents() {
+        beginEvents = nullptr;
+        endEvents = nullptr;
+        beginCount = 0;
+        endCount = 0;
+    }
+
+    void getBegin(int index, b2SensorBeginTouchEvent* event) {
+        *event = beginEvents[index];
+    }
+
+    void getEnd(int index, b2SensorEndTouchEvent* event) {
+        *event = endEvents[index];
+    }
+};
+
+class SensorBeginTouchEvent : public b2SensorBeginTouchEvent {
+    public:
+    SensorBeginTouchEvent() {
+
+    }
+};
+
+class SensorEndTouchEvent : public b2SensorEndTouchEvent {
+    public:
+    SensorEndTouchEvent() {
+
+    }
+};
+
+class ContactBeginTouchEvent : public b2ContactBeginTouchEvent {
+    public:
+    ContactBeginTouchEvent() {
+
+    }
+};
+
+class ContactEndTouchEvent : public b2ContactEndTouchEvent {
+    public:
+    ContactEndTouchEvent() {
+
+    }
+};
+
+
+class ContactHitEvent : public b2ContactHitEvent {
+    public:
+    ContactHitEvent() {
+
+    }
+};
+
+
+class ContactEvents : public b2ContactEvents {
+    public:
+    ContactEvents() {
+        beginEvents = nullptr;
+        endEvents = nullptr;
+        hitEvents = nullptr;
+
+        beginCount = 0;
+        endCount = 0;
+        hitCount = 0;
+    }
+
+    void getBegin(int index, b2ContactBeginTouchEvent* event) {
+        *event = beginEvents[index];
+    }
+
+    void getEnd(int index, b2ContactEndTouchEvent* event) {
+        *event = endEvents[index];
+    }
+
+    void getHit(int index, b2ContactHitEvent* event) {
+        *event = hitEvents[index];
+    }
+};
+
+class RayResult : public b2RayResult {
+    public:
+    RayResult() {
+        shapeId = b2_nullShapeId;
+        point = {0, 0};
+        normal = {0, 0};
+        fraction = 0.0;
+        hit = false;
+    }
+};
+
+class ManifoldPoint : public b2ManifoldPoint {
+    public:
+    ManifoldPoint() {
+        point = {0, 0};
+        anchorA = {0,0};
+        anchorB = {0,0};
+
+        separation = 0.0f;
+        normalImpulse = 0.0f;
+        tangentImpulse = 0.0f;
+        maxNormalImpulse = 0.0f;
+        normalVelocity = 0.0f;
+        id = 0;
+        persisted = 0;
+    }
+
+    const b2ManifoldPoint& toManifoldPoint() {
+        return *this;
+    }
+
+};
+
+class Manifold : public b2Manifold {
+    public:
+    Manifold() {
+        points[0] = ManifoldPoint().toManifoldPoint();
+        points[1] = ManifoldPoint().toManifoldPoint();
+        normal = {0, 1};
+        pointCount = 0;
+    }
+};
+
+class BodyMoveEvent : public b2BodyMoveEvent {
+    public:
+    BodyMoveEvent() {
+
+    }
+
+    
+};
+
+
+
+
+class World {
+    public:
+    static inline uint32_t idToInt(b2WorldId id) {
+        return id.index1 << 16 | id.revision;
+    }
+    static inline b2WorldId intToId(uint32_t id) {
+        b2WorldId worldId;
+        worldId.index1 = id >> 16;
+        worldId.revision = id & 0xFFFF;
+        return worldId;
+    }
+
+static inline void GetBodyEvents(b2WorldId worldId, b2BodyEvents* events) {
+    *events = b2World_GetBodyEvents(worldId);
+}
+
+static inline void GetSensorEvents(b2WorldId worldId, b2SensorEvents* events) {
+    *events = b2World_GetSensorEvents(worldId);
+}
+
+static inline void GetContactEvents(b2WorldId worldId, b2ContactEvents* events) {
+    *events = b2World_GetContactEvents(worldId);
+}
+
+/// Prototype callback for overlap queries.
+/// See b2World_QueryAABB
+/// Called for each shape found in the query AABB.
+/// @return false to terminate the query.
+//typedef bool b2OverlapResultFcn(b2ShapeId shapeId, void* context);
+
+
+
+static inline void OverlapAABB(b2WorldId worldId,float min_x, float min_y, float max_x, float max_y, b2QueryFilter filter, bool (*fcn)(int64_t,vdynamic*), vdynamic* context) {
+    b2AABB aabb = {{min_x, min_y}, {max_x, max_y}};
+    
+    auto fn = [](b2ShapeId shapeId, void* context) {
+        return true;
+    };
+
+    b2World_OverlapAABB(worldId, aabb, filter, fn, context);
+}
+
+//[Static, Internal="hbox2c::World::OverlapCircle"] void overlapCircle([Get="castWorldId"]WorldId worldId, float x, float y, float radius,  Transform transform, QueryFilter filter, bool  (ShapeId shape, dynamic context) fcn, dynamic context);
+
+static inline void OverlapCircle(b2WorldId worldId, float x, float y, float radius,  b2Transform *transform, b2QueryFilter filter, bool (*fcn)(int64_t,vdynamic*), vdynamic *context){
+    auto fn = [](b2ShapeId shapeId, void* context) {
+        return true;
+    };
+    b2Circle circle = {{x, y}, radius};
+
+    b2World_OverlapCircle(worldId, &circle, *transform, filter, fn, context);
+}
+
+
+/// Prototype callback for ray casts.
+/// See b2World::RayCast
+/// Called for each shape found in the query. You control how the ray cast
+/// proceeds by returning a float:
+/// #todo rework this to return penetration
+/// return -1: ignore this shape and continue
+/// return 0: terminate the ray cast
+/// return fraction: clip the ray to this point
+/// return 1: don't clip the ray and continue
+/// @param shapeId the shape hit by the ray
+/// @param point the point of initial intersection
+/// @param normal the normal vector at the point of intersection
+/// @param fraction the fraction along the ray at the point of intersection
+/// @return -1 to filter, 0 to terminate, fraction to clip the ray for
+/// closest hit, 1 to continue
+//typedef float b2CastResultFcn(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context);
+
+static inline void RayCast(b2WorldId worldId, float x, float y, float dx, float dy, b2QueryFilter filter, float (*fcn)(int64_t shapeId, float p_x, float p_y, float n_x, float n_y, float fraction, vdynamic *context), vdynamic *context) {
+
+    auto fn = [](b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context) {
+        return fraction;
+    };
+
+    b2World_RayCast(worldId, {x, y}, {dx, dy}, filter, fn, context);
+}
+static inline bool RayCastClosest(b2WorldId worldId, float origin_x, float origin_y, float translation_x, float translation_y, b2QueryFilter filter, RayResult *result) {
+    b2RayResult *res = result;
+    *res = b2World_RayCastClosest(worldId, {origin_x, origin_y}, {translation_x, translation_y}, filter);
+    return res->hit;
+}
+
+static inline void CircleCast(b2WorldId worldId, float x, float y, float radius, float ox, float oy, float rot, float dx, float dy,b2QueryFilter filter, float (*fcn)(int64_t shapeId, float p_x, float p_y, float n_x, float n_y, float fraction, vdynamic *context), vdynamic *context) {
+     auto fn = [](b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context) {
+        return fraction;
+    };
+
+    b2Circle circle = {{x, y}, radius};
+    Transform tranform(ox, oy, rot);
+
+    b2World_CircleCast(worldId, &circle, tranform, {dx, dy}, filter, fn, context);
+}
+
+static inline void SetGravity( b2WorldId worldId, float x, float y) {
+    b2World_SetGravity(worldId, {x, y});
+}
+
+static inline void Explode(b2WorldId worldId, float pos_x, float pos_y, float radius, float impulse) {
+    b2World_Explode(worldId, {pos_x, pos_y}, radius, impulse);
+}
+
+
+/*
+
+
+/// Overlap test for all shapes that overlap the provided capsule.
+//[Static, Internal="hbox2c::World::OverlapCapsule"] void overlapCapsule([Get="castWorldId"] WorldId worldId, const b2Capsule* capsule, Transform transform, QueryFilter filter, bool  (ShapeId shape, dynamic context) fcn, dynamic context);
+
+/// Overlap test for all shapes that overlap the provided polygon.
+//[Static, Internal="hbox2c::World::OverlapPolygon"] void overlapPolygon([Get="castWorldId"] WorldId worldId, const b2Polygon* polygon, Transform transform, QueryFilter filter, bool  (ShapeId shape, dynamic context) fcn, dynamic context);
+
+
+    */
+};
 
 class SampleTask : public enki::ITaskSet
 {
@@ -119,23 +401,50 @@ class WorldContext : public b2WorldDef {
     }
 
 
+
     uint32_t createWorld() {
-        b2WorldId id = b2CreateWorld(this);
-        uint32_t value = id.index1 << 16 | id.revision;
-        return value;
+        return World::idToInt(b2CreateWorld(this));
     }
 
     void destroyWorld( uint32_t world) {
-        b2WorldId id;
-        id.index1 = world >> 16;
-        id.revision = world & 0xFFFF;
-        b2DestroyWorld(id);
+        b2DestroyWorld(World::intToId(world));
     }
 };
 
+
+
 }
 
+inline int64_t cast( b2BodyId id) {
+    return *reinterpret_cast<int64_t *>(&id);
+}
 
+inline b2BodyId castBodyId( int64_t id) {
+    return *reinterpret_cast<b2BodyId *>(&id);
+}
+inline vdynamic *cast(void *ptr) {
+    return static_cast<vdynamic *>(ptr);
+}
+
+inline int64_t cast( b2ShapeId id) {
+    return *reinterpret_cast<int64_t *>(&id);
+}
+
+inline b2ShapeId castShapeId( int64_t id) {
+    return *reinterpret_cast<b2ShapeId *>(&id);
+}
+
+inline b2WorldId castWorldId( int32_t id) {
+    return *reinterpret_cast<b2WorldId *>(&id);
+}
+
+inline b2QueryFilter castQueryFilter( int64_t id) {
+    return *reinterpret_cast<b2QueryFilter *>(&id);
+}
+
+inline int64_t cast( b2QueryFilter id) {
+    return *reinterpret_cast<int64_t *>(&id);
+}
 /*
 b2Vec2 gravity = {0.0f, -10.0f};
 
