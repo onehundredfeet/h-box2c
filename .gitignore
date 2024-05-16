@@ -4,3 +4,5 @@ src/hl-idl-helpers.hpp
 build_box2c
 build
 installed
+box2c.hdll
+bin/test.hl
