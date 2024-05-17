@@ -38,7 +38,8 @@ set( PLAT_DIR "linux64")
 endif()
 
 
-add_subdirectory(ext/cpptrace)
+#add_subdirectory(ext/cpptrace)
+add_subdirectory(ext/box2c)
 
 set (PROJECT_ADDITIONAL_LIB_DIRS
 #"build/box2c"
@@ -46,8 +47,9 @@ set (PROJECT_ADDITIONAL_LIB_DIRS
 
 
 set(PROJECT_ADDITIONAL_LIBS
-"${CMAKE_CURRENT_SOURCE_DIR}/build_box2c/src/libbox2d.a"
-cpptrace-lib
+#"${CMAKE_CURRENT_SOURCE_DIR}/build_box2c/src/libbox2d.a"
+#cpptrace-lib
+box2d
 )
 
 

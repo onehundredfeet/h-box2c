@@ -147,6 +147,8 @@ interface RayResult
 /// You can safely re-use body definitions. Shapes are added to a body after construction.
 [Internal="hbox2c::BodyDef"]
 interface BodyDef {
+	void BodyDef();
+	
 	/// The body type: static, kinematic, or dynamic.
 	/// Note: if a dynamic body would have zero mass, the mass is set to one.
 	attribute BodyType type;
@@ -205,6 +207,111 @@ interface BodyDef {
 	attribute bool automaticMass;
 
 };
+
+[NoDelete]
+interface Body {
+
+
+/// Create a circle shape and attach it to a body. The shape definition and geometry are fully cloned.
+/// Contacts are not created until the next time step.
+///	@return the shape id for accessing the shape
+[Static, Internal="hbox2c::Body::CreateCircleShape", Get="cast"] ShapeId createCircleShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, float center_x, float center_y, float radius);
+
+/// Create a line segment shape and attach it to a body. The shape definition and geometry are fully cloned.
+/// Contacts are not created until the next time step.
+///	@return the shape id for accessing the shape
+[Static, Internal="hbox2c::Body::CreateSegmentShape", Get="cast"] ShapeId createSegmentShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, float point_1_x, float point_1_y, float point_2_x, float point_2_y);
+
+/// Create a capsule shape and attach it to a body. The shape definition and geometry are fully cloned.
+/// Contacts are not created until the next time step.
+///	@return the shape id for accessing the shape
+[Static, Internal="hbox2c::Body::CreateCapsuleShape", Get="cast"] ShapeId createCapsuleShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, float center_1_x, float center_1_y, float center_2_x, float center_2_y, float radius);
+
+/// Create a polygon shape and attach it to a body. The shape definition and geometry are fully cloned.
+/// Contacts are not created until the next time step.
+///	@return the shape id for accessing the shape
+// [Static, Internal="hbox2c::Body::CreatePolygonShape", Get="cast"] ShapeId createPolygonShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, b2Polygon* polygon);
+
+/// Destroy any shape type
+ [Static, Internal="hbox2c::Body::DestroyShape"] void destroyShape([Get="castShapeId"]ShapeId shapeId);
+};
+
+
+
+/// Shape type
+[Internal="b2ShapeType", Prefix="b2_"]
+enum ShapeType
+{
+	"circleShape",
+	"capsuleShape",
+	"segmentShape",
+	"polygonShape",
+	"smoothSegmentShape",
+	"shapeTypeCount"
+} ;
+
+/// This holds contact filtering data.
+interface b2Filter
+{
+	/// The collision category bits. Normally you would just set one bit.
+	attribute uint categoryBits;
+
+	/// The collision mask bits. This states the categories that this
+	/// shape would accept for collision.
+	attribute uint maskBits;
+
+	/// Collision groups allow a certain group of objects to never collide (negative)
+	/// or always collide (positive). Zero means no collision group. Non-zero group
+	/// filtering always wins against the mask bits.
+	attribute int groupIndex;
+} ;
+
+/// Used to create a shape
+[Internal="hbox2c::ShapeDef"]
+interface ShapeDef
+{
+	void ShapeDef();
+
+	/// Use this to store application specific shape data.
+	[Get="cast"] attribute dynamic userData;
+
+	/// The friction coefficient, usually in the range [0,1].
+	attribute float friction;
+
+	/// The restitution (bounce) usually in the range [0,1].
+	attribute float restitution;
+
+	/// The density, usually in kg/m^2.
+	attribute float density;
+
+	/// Contact filtering data.
+	//attribute b2Filter filter;
+	[Internal="filter.categoryBits"] attribute uint categoryBits;
+	[Internal="filter.maskBits"] attribute uint maskBits;
+	[Internal="filter.groupIndex"] attribute int groupIndex;
+
+	/// A sensor shape collects contact information but never generates a collision response.
+	attribute bool isSensor;
+
+	/// Enable sensor events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors.
+	attribute bool enableSensorEvents;
+
+	/// Enable contact events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors.
+	attribute bool enableContactEvents;
+
+	/// Enable hit events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors.
+	attribute bool enableHitEvents;
+
+	/// Enable pre-solve contact events for this shape. Only applies to dynamic bodies. These are expensive
+	///	and must be carefully handled due to multi-threading. Ignored for sensors.
+	attribute bool enablePreSolveEvents;
+
+	/// Normally shapes on static bodies don't invoke contact creation when they are added to the world. This overrides
+	///	that behavior and causes contact creation. This significantly slows down static body creation which can be important
+	///	when there are many static bodies.
+	attribute bool forceContactCreation;
+
+} ;
 
 
 /// A manifold point is a contact point belonging to a contact
@@ -372,6 +479,8 @@ interface World {
 
 /// Dump memory stats to box2d_memory.txt
 [Static, Internal="b2World_DumpMemoryStats"] void dumpMemoryStats([Get="castWorldId"] WorldId worldId);
+
+[Static, Internal="b2CreateBody", Get="cast"] BodyId createBody([Get="castWorldId"] WorldId worldId, BodyDef def);
 };
 
 [Internal="hbox2c::WorldContext"]

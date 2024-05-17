@@ -17,7 +17,7 @@
 #include <csignal>
 #include <cmath>
 
-#define STACK_TRACE
+//#define STACK_TRACE
 
 #ifdef STACK_TRACE
 #include <cpptrace/cpptrace.hpp>
@@ -225,9 +225,6 @@ class BodyMoveEvent : public b2BodyMoveEvent {
     
 };
 
-
-
-
 class World {
     public:
     static inline uint32_t idToInt(b2WorldId id) {
@@ -392,6 +389,37 @@ class BodyDef : public b2BodyDef {
     }
 };
 
+class ShapeDef : public b2ShapeDef {
+public:
+    ShapeDef() {
+        static_cast<b2ShapeDef&>(*this) = b2DefaultShapeDef();
+    }
+};
+
+class Body {
+public:
+static b2ShapeId CreateCircleShape(b2BodyId bodyId, ShapeDef *def, float center_x, float center_y, float radius) {
+    b2Circle circle = {{center_x, center_y}, radius};
+
+    return b2CreateCircleShape(bodyId, def, &circle);
+}
+
+static b2ShapeId CreateSegmentShape(b2BodyId bodyId, ShapeDef *def, float point_1_x, float point_1_y, float point_2_x, float point_2_y) {
+    b2Segment segment = {{point_1_x, point_1_y}, {point_2_x, point_2_y}};
+
+    return b2CreateSegmentShape(bodyId, def, &segment);
+}
+static b2ShapeId CreateCapsuleShape(b2BodyId bodyId, ShapeDef *def, float center_1_x, float center_1_y, float center_2_x, float center_2_y, float radius) {
+    b2Capsule capsule = {{center_1_x, center_1_y}, {center_2_x, center_2_y}, radius};
+
+    return b2CreateCapsuleShape(bodyId, def, &capsule);
+}
+
+static void DestroyShape(b2ShapeId shapeId) {
+    b2DestroyShape(shapeId);
+}
+};
+
 
 class WorldContext : public b2WorldDef {
     public:
@@ -404,11 +432,12 @@ class WorldContext : public b2WorldDef {
         enqueueTask = EnqueueTask;
         finishTask = FinishTask;
         userTaskContext = this;
-        m_threadCount = 1 + workerCount;
+        if (workerCount > maxThreads) workerCount = maxThreads;
+        m_threadCount = workerCount;
         m_taskCount = 0;
         this->workerCount = workerCount;
         this->enableSleep = true;
-        m_scheduler.Initialize();
+        m_scheduler.Initialize(m_threadCount);
         
     }
     void setGravity(float x, float y) {
@@ -453,7 +482,7 @@ class WorldContext : public b2WorldDef {
     uint32_t createWorld() {
         auto id = b2CreateWorld(this);
         auto x = cast(id);
-        printf("World created %d|%d -> %d\n", id.index1, id.revision, x);
+        //printf("World created %d|%d -> %d\n", id.index1, id.revision, x);
 
         return x;
     }
@@ -463,7 +492,7 @@ class WorldContext : public b2WorldDef {
     }
 
     inline void step( b2WorldId worldId, float timeStep, int subStepCount) {
-        printf("Step %d %f %d - task Count %d\n", worldId.index1, timeStep, subStepCount, m_taskCount);
+        //printf("Step %d %f %d - task Count %d\n", worldId.index1, timeStep, subStepCount, m_taskCount);
         b2World_Step(worldId, timeStep, subStepCount);
         m_taskCount = 0;
     }
