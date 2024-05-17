@@ -285,11 +285,6 @@ interface World {
 /// World identifier validation. Provides validation for up to 64K allocations.
 [Static, Internal="b2World_IsValid"] bool isValid([Get="castWorldId"] WorldId id);
 
-/// Simulate a world for one time step. This performs collision detection, integration, and constraint solution.
-/// @param worldId the world to simulate
-/// @param timeStep the amount of time to simulate, this should be a fixed number. Typically 1/60.
-/// @param subStepCount the number of sub-steps, increasing the sub-step count can increase accuracy. Typically 4.
-[Static, Internal="b2World_Step"] void step( [Get="castWorldId"] WorldId worldId, float timeStep, int subStepCount);
 
 /// Call this to draw shapes and other debug draw data. This is intentionally non-const.
 //[Static, Internal="b2World_Draw"] void draw([Get="castWorldId"] WorldId worldId, b2DebugDraw* draw);
@@ -418,4 +413,13 @@ interface WorldContext {
 
 	WorldId createWorld();
 	void destroyWorld(WorldId id);
+
+	/// Simulate a world for one time step. This performs collision detection, integration, and constraint solution.
+	/// @param worldId the world to simulate
+	/// @param timeStep the amount of time to simulate, this should be a fixed number. Typically 1/60.
+	/// @param subStepCount the number of sub-steps, increasing the sub-step count can increase accuracy. Typically 4.
+	void step( [Get="castWorldId"] WorldId worldId, float timeStep, int subStepCount);
+
+
+	[Static, Internal="hbox2c::WorldContext::EnableDebug"] void EnableDebug();
 };

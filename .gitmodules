@@ -7,3 +7,6 @@
 [submodule "ext/enkiTS"]
 	path = ext/enkiTS
 	url = https://github.com/dougbinks/enkiTS.git
+[submodule "ext/cpptrace"]
+	path = ext/cpptrace
+	url = https://github.com/jeremy-rifkin/cpptrace.git

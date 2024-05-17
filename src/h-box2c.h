@@ -10,7 +10,53 @@
 #include "TaskScheduler.h"
 #include "hl-idl-helpers.hpp"
 
+#include <string>
+#include <vector>
+#include <set>
+#include <iostream>
+#include <csignal>
 #include <cmath>
+
+#define STACK_TRACE
+
+#ifdef STACK_TRACE
+#include <cpptrace/cpptrace.hpp>
+#endif
+
+inline int64_t cast( b2BodyId id) {
+    return *reinterpret_cast<int64_t *>(&id);
+}
+
+inline b2BodyId castBodyId( int64_t id) {
+    return *reinterpret_cast<b2BodyId *>(&id);
+}
+inline vdynamic *cast(void *ptr) {
+    return static_cast<vdynamic *>(ptr);
+}
+
+inline int64_t cast( b2ShapeId id) {
+    return *reinterpret_cast<int64_t *>(&id);
+}
+
+inline b2ShapeId castShapeId( int64_t id) {
+    return *reinterpret_cast<b2ShapeId *>(&id);
+}
+
+inline b2WorldId castWorldId( int32_t id) {
+    return *reinterpret_cast<b2WorldId *>(&id);
+}
+
+inline uint32_t cast( b2WorldId id) {
+    return *reinterpret_cast<uint32_t *>(&id);
+}
+
+inline b2QueryFilter castQueryFilter( int64_t id) {
+    return *reinterpret_cast<b2QueryFilter *>(&id);
+}
+
+inline int64_t cast( b2QueryFilter id) {
+    return *reinterpret_cast<int64_t *>(&id);
+}
 
 namespace hbox2c
 {
@@ -287,6 +333,7 @@ static inline void Explode(b2WorldId worldId, float pos_x, float pos_y, float ra
 }
 
 
+
 /*
 
 
@@ -361,6 +408,7 @@ class WorldContext : public b2WorldDef {
         m_taskCount = 0;
         this->workerCount = workerCount;
         this->enableSleep = true;
+        m_scheduler.Initialize();
         
     }
     void setGravity(float x, float y) {
@@ -403,48 +451,66 @@ class WorldContext : public b2WorldDef {
 
 
     uint32_t createWorld() {
-        return World::idToInt(b2CreateWorld(this));
+        auto id = b2CreateWorld(this);
+        auto x = cast(id);
+        printf("World created %d|%d -> %d\n", id.index1, id.revision, x);
+
+        return x;
     }
 
     void destroyWorld( uint32_t world) {
-        b2DestroyWorld(World::intToId(world));
+        b2DestroyWorld(castWorldId(world));
     }
+
+    inline void step( b2WorldId worldId, float timeStep, int subStepCount) {
+        printf("Step %d %f %d - task Count %d\n", worldId.index1, timeStep, subStepCount, m_taskCount);
+        b2World_Step(worldId, timeStep, subStepCount);
+        m_taskCount = 0;
+    }
+
+
+    #ifdef STACK_TRACE
+static void signalHandler(int inSignal) {
+    if (inSignal == SIGSEGV) { // Segmentation fault
+        // Capture stack trace
+        std::cerr << "Segmentation fault captured:\n";
+        cpptrace::generate_trace(2).print_with_snippets();
+        std::cerr << "Done:\n";
+        // You can also log additional information or take other actions here
+    } else if (inSignal == SIGBUS) { // Segmentation fault
+        // Capture stack trace
+        std::cerr << "Segmentation fault captured:\n";
+        cpptrace::generate_trace(2).print_with_snippets();
+        std::cerr << "Done:\n";
+        // You can also log additional information or take other actions here
+    }
+
+    // You might want to handle other signals similarly
+
+    // Re-raise the signal to the default handler
+    signal(inSignal, SIG_DFL);
+    raise(inSignal);
+}
+#endif
+
+static void EnableDebug() {
+#ifdef STACK_TRACE
+     ::signal(SIGSEGV, signalHandler);
+     ::signal(SIGBUS, signalHandler);
+
+     
+#endif
+}
 };
 
 
 
+
 }
 
-inline int64_t cast( b2BodyId id) {
-    return *reinterpret_cast<int64_t *>(&id);
-}
 
-inline b2BodyId castBodyId( int64_t id) {
-    return *reinterpret_cast<b2BodyId *>(&id);
-}
-inline vdynamic *cast(void *ptr) {
-    return static_cast<vdynamic *>(ptr);
-}
 
-inline int64_t cast( b2ShapeId id) {
-    return *reinterpret_cast<int64_t *>(&id);
-}
 
-inline b2ShapeId castShapeId( int64_t id) {
-    return *reinterpret_cast<b2ShapeId *>(&id);
-}
-
-inline b2WorldId castWorldId( int32_t id) {
-    return *reinterpret_cast<b2WorldId *>(&id);
-}
-
-inline b2QueryFilter castQueryFilter( int64_t id) {
-    return *reinterpret_cast<b2QueryFilter *>(&id);
-}
-
-inline int64_t cast( b2QueryFilter id) {
-    return *reinterpret_cast<int64_t *>(&id);
-}
 /*
 b2Vec2 gravity = {0.0f, -10.0f};
 
