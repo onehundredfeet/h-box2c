@@ -4,6 +4,7 @@
 #include "box2d/callbacks.h"
 #include "box2d/hull.h"
 #include "box2d/manifold.h"
+#include "box2d/geometry.h"
 //#include "box2d/math.h"
 #include "box2d/math_cpp.h"
 #include "box2d/timer.h"
@@ -418,8 +419,156 @@ static b2ShapeId CreateCapsuleShape(b2BodyId bodyId, ShapeDef *def, float center
 static void DestroyShape(b2ShapeId shapeId) {
     b2DestroyShape(shapeId);
 }
+
+static void GetPosition(b2BodyId bodyId, b2Vec2 *pos) {
+    *pos = b2Body_GetPosition(bodyId);
+}
+
+static void GetRotation(b2BodyId bodyId, b2Vec2 *rot) {
+    *(b2Rot *)rot = b2Body_GetRotation(bodyId);
+}
+static void GetTransform(b2BodyId bodyId, b2Transform *t) {
+    *t = b2Body_GetTransform(bodyId);
+}
+
+static void SetTransform(b2BodyId bodyId,float x, float y, float angle) {
+    b2Body_SetTransform(bodyId, {x, y}, angle);
+}
+
+static void GetLocalPoint(b2BodyId bodyId, float x, float y, b2Vec2 *point) {
+    *point = b2Body_GetLocalPoint(bodyId, {x, y});
+}
+
+static void GetWorldPoint(b2BodyId bodyId, float x, float y, b2Vec2 *point) {
+    *point = b2Body_GetWorldPoint(bodyId, {x, y});
+}
+
+static void GetLocalVector(b2BodyId bodyId, float x, float y, b2Vec2 *vector) {
+    *vector = b2Body_GetLocalVector(bodyId, {x, y});
+}
+
+static void GetWorldVector(b2BodyId bodyId, float x, float y, b2Vec2 *vector) {
+    *vector = b2Body_GetWorldVector(bodyId, {x, y});
+}
+
+static void ApplyForce(b2BodyId bodyId, float force_x, float force_y, float point_x, float point_y, bool wake) {
+    b2Body_ApplyForce(bodyId, {force_x, force_y}, {point_x, point_y}, wake);
+}
+
+static void ApplyForceToCenter(b2BodyId bodyId, float force_x, float force_y, bool wake) {
+    b2Body_ApplyForceToCenter(bodyId, {force_x, force_y}, wake);
+}
+
+static void ApplyLinearImpulse(b2BodyId bodyId, float impulse_x, float impulse_y, float point_x, float point_y, bool wake) {
+    b2Body_ApplyLinearImpulse(bodyId, {impulse_x, impulse_y}, {point_x, point_y}, wake);
+}
+
+static void ApplyLinearImpulseToCenter(b2BodyId bodyId, float impulse_x, float impulse_y, bool wake) {
+    b2Body_ApplyLinearImpulseToCenter(bodyId, {impulse_x, impulse_y}, wake);
+}
+
+static void GetLocalCenterOfMass(b2BodyId bodyId, b2Vec2 *center) {
+    *center = b2Body_GetLocalCenterOfMass(bodyId);
+}
+
+static void GetWorldCenterOfMass(b2BodyId bodyId, b2Vec2 *center) {
+    *center = b2Body_GetWorldCenterOfMass(bodyId);
+}
+
+static void SetLinearVelocity(b2BodyId bodyId, float x, float y) {
+    b2Body_SetLinearVelocity(bodyId, {x, y});
+}
+
+static void GetLinearVelocity(b2BodyId bodyId, b2Vec2 *velocity) {
+    *velocity = b2Body_GetLinearVelocity(bodyId);
+}
+
+static void ComputeAABB(b2BodyId bodyId, b2AABB *aabb) {
+    *aabb = b2Body_ComputeAABB(bodyId);
+}
+
 };
 
+class Hull : public b2Hull {
+    public:
+    Hull() {
+        count = 0;
+    }
+
+    void fromPoints(const float* points, int32_t count) {
+        b2Hull *hull = this;
+        *hull = b2ComputeHull( (b2Vec2*)points, count);
+    }
+
+    bool isValid() {
+        return b2ValidateHull(this);
+    }
+};
+
+class Polygon : public b2Polygon {
+    public:
+    Polygon() {
+        count = 0;
+        radius = 0.0f;
+    }
+
+
+/// Make a convex polygon from a convex hull. This will assert if the hull is not valid.
+    bool fromHull(const b2Hull* hull, float radius) {
+        b2Polygon *polygon = this;
+        *polygon = b2MakePolygon(hull, radius);
+        return polygon->count > 0;
+    }
+
+/// Make an offset convex polygon from a convex hull. This will assert if the hull is not valid.
+    bool fromOffsetHull(const b2Hull* hull, float radius, float x, float y, float angle) {
+        b2Transform transform = {{x, y}, b2MakeRot(angle)};
+        b2Polygon *polygon = this;
+        *polygon = b2MakeOffsetPolygon(hull, radius, transform);
+        return polygon->count > 0;
+    
+    }
+
+/// Make a square polygon, bypassing the need for a convex hull.
+    bool makeSquare(float h) {
+        b2Polygon *polygon = this;
+        *polygon = b2MakeSquare(h);
+        return polygon->count > 0;
+    
+    }
+
+/// Make a box (rectangle) polygon, bypassing the need for a convex hull.
+    bool makeBox(float hx, float hy) {
+        b2Polygon *polygon = this;
+        *polygon = b2MakeBox(hx, hy);
+        return polygon->count > 0;
+    
+    }
+
+/// Make a rounded box, bypassing the need for a convex hull.
+    bool makeRoundedBox(float hx, float hy, float radius) {
+        b2Polygon *polygon = this;
+        *polygon = b2MakeRoundedBox(hx, hy, radius);
+        return polygon->count > 0;
+    }
+
+/// Make an offset box, bypassing the need for a convex hull.
+    bool makeOffsetBox(float hx, float hy, float center_x, float center_y, float angle) {
+        b2Polygon *polygon = this;
+        *polygon = b2MakeOffsetBox(hx, hy, {center_x,center_y}, angle);
+        return polygon->count > 0;
+    }
+
+/// Transform a polygon. This is useful for transferring a shape from one body to another.
+    bool fromTransformedPolygon(float x, float y, float angle, const b2Polygon* polygon) {
+        b2Transform transform = {{x, y}, b2MakeRot(angle)};
+        b2Polygon *poly = this;
+        *poly = b2TransformPolygon(transform, polygon);
+        return poly->count > 0;
+    }
+
+
+};
 
 class WorldContext : public b2WorldDef {
     public:
@@ -433,6 +582,7 @@ class WorldContext : public b2WorldDef {
         finishTask = FinishTask;
         userTaskContext = this;
         if (workerCount > maxThreads) workerCount = maxThreads;
+        
         m_threadCount = workerCount;
         m_taskCount = 0;
         this->workerCount = workerCount;

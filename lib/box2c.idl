@@ -15,6 +15,22 @@ enum BodyType
 	"dynamicBody"
 };
 
+[Internal="b2Vec2"]
+interface Vec2 {
+	void Vec2();
+	attribute float x;
+	attribute float y;
+};
+
+[Internal="b2AABB"]
+interface AABB {
+	void AABB();
+	[Internal="lowerBound.x"] attribute float lowerBound_x;
+	[Internal="lowerBound.y"] attribute float lowerBound_y;
+	[Internal="upperBound.x"] attribute float upperBound_x;
+	[Internal="upperBound.y"] attribute float upperBound_y;
+};
+
 
 [Internal="b2Transform"]
 interface Transform {
@@ -143,6 +159,42 @@ interface RayResult
 	attribute bool hit;
 };
 
+[Internal="hbox2c::Hull"]
+interface Hull 
+{
+	void Hull();
+
+	void fromPoints(float [] points, int count);
+    bool isValid();
+};
+
+[Internal="hbox2c::Polygon"]
+interface Polygon 
+{
+	void Polygon();
+
+	/// Make a convex polygon from a convex hull. This will assert if the hull is not valid.
+	bool fromHull(Hull hull, float radius);
+
+	/// Make an offset convex polygon from a convex hull. This will assert if the hull is not valid.
+	bool fromOffsetHull(Hull hull, float radius, float transform_x, float transform_y, float transform_rot );
+
+	/// Make a square polygon, bypassing the need for a convex hull.
+	bool makeSquare(float h);
+
+	/// Make a box (rectangle) polygon, bypassing the need for a convex hull.
+	bool makeBox(float hx, float hy);
+
+	/// Make a rounded box, bypassing the need for a convex hull.
+	bool makeRoundedBox(float hx, float hy, float radius);
+
+	/// Make an offset box, bypassing the need for a convex hull.
+	bool makeOffsetBox(float hx, float hy, float center_x, float center_y, float angle);
+
+	/// Transform a polygon. This is useful for transferring a shape from one body to another.
+	bool fromTransformedPolygon(float transform_x, float transform_y, float transform_rot, Polygon polygon);
+};
+
 /// A body definition holds all the data needed to construct a rigid body.
 /// You can safely re-use body definitions. Shapes are added to a body after construction.
 [Internal="hbox2c::BodyDef"]
@@ -234,6 +286,228 @@ interface Body {
 
 /// Destroy any shape type
  [Static, Internal="hbox2c::Body::DestroyShape"] void destroyShape([Get="castShapeId"]ShapeId shapeId);
+
+
+ 
+/// Body identifier validation. Provides validation for up to 64K allocations.
+[Static, Internal="b2Body_IsValid"] bool isValid([Get="castBodyId"] BodyId id);
+
+/// Get the body type: static, kinematic, or dynamic
+[Static, Internal="b2Body_GetType"] BodyType getType([Get="castBodyId"] BodyId bodyId);
+
+/// Change the body type. This is an expensive operation. This automatically updates the mass
+///	properties regardless of the automatic mass setting.
+[Static, Internal="b2Body_SetType"] void setType([Get="castBodyId"] BodyId bodyId, BodyType type);
+
+/// Set the user data for a body
+[Static, Internal="b2Body_SetUserData"] void setUserData([Get="castBodyId"] BodyId bodyId, dynamic userData);
+
+/// Get the user data stored in a body
+[Static, Internal="b2Body_GetUserData", Get="cast"] dynamic getUserData([Get="castBodyId"] BodyId bodyId);
+
+/// Get the world position of a body. This is the location of the body origin.
+[Static, Internal="hbox2c::Body::GetPosition"] void getPosition([Get="castBodyId"] BodyId bodyId, Vec2 o_position);
+
+/// Get the world rotation of a body as a sine/cosine pair.
+[Static, Internal="hbox2c::Body::GetRotation"] void getRotation([Get="castBodyId"] BodyId bodyId, Vec2 quat);
+
+/// Get the body angle in radians in the range [-pi, pi]
+[Static, Internal="b2Body_GetAngle"] float getAngle([Get="castBodyId"] BodyId bodyId);
+
+/// Get the world transform of a body.
+[Static, Internal="hbox2c::Body::GetTransform"] void getTransform([Get="castBodyId"] BodyId bodyId, Transform transform);
+
+/// Set the world transform of a body. This acts as a teleport and is fairly expensive.
+[Static, Internal="hbox2c::Body::SetTransform"] void setTransform([Get="castBodyId"] BodyId bodyId, float position_x, float position_y, float angle);
+
+/// Get a local point on a body given a world point
+[Static, Internal="hbox2c::Body::GetLocalPoint"] void getLocalPoint([Get="castBodyId"] BodyId bodyId, float worldPoint_x, float worldPoint_y, Vec2 o_position );
+
+/// Get a world point on a body given a local point
+[Static, Internal="hbox2c::Body::GetWorldPoint"] void getWorldPoint([Get="castBodyId"] BodyId bodyId, float localPoint_x, float localPoint_y, Vec2 o_position );
+
+/// Get a local vector on a body given a world vector
+[Static, Internal="hbox2c::Body::GetLocalVector"] void getLocalVector([Get="castBodyId"] BodyId bodyId, float worldVector_x, float worldVector_y, Vec2 o_vector );
+
+/// Get a world vector on a body given a local vector
+[Static, Internal="hbox2c::Body::GetWorldVector"] void getWorldVector([Get="castBodyId"] BodyId bodyId, float localVector_x, float localVector_y, Vec2 o_vector );
+
+/// Get the linear velocity of a body's center of mass
+[Static, Internal="hbox2c::Body::GetLinearVelocity"] void getLinearVelocity([Get="castBodyId"] BodyId bodyId, Vec2 o_velocity);
+
+/// Get the angular velocity of a body in radians per second
+[Static, Internal="b2Body_GetAngularVelocity"] float getAngularVelocity([Get="castBodyId"] BodyId bodyId);
+
+/// Set the linear velocity of a body
+[Static, Internal="hbox2c::Body::SetLinearVelocity"] void setLinearVelocity([Get="castBodyId"] BodyId bodyId, float linearVelocity_x, float linearVelocity_y);
+
+/// Set the angular velocity of a body in radians per second
+[Static, Internal="b2Body_SetAngularVelocity"] void setAngularVelocity([Get="castBodyId"] BodyId bodyId, float angularVelocity);
+
+/// Apply a force at a world point. If the force is not
+/// applied at the center of mass, it will generate a torque and
+/// affect the angular velocity. This wakes up the body.
+/// @param force the world force vector, usually in Newtons (N).
+/// @param point the world position of the point of application.
+/// @param wake also wake up the body
+[Static, Internal="hbox2c::Body::ApplyForce"] void applyForce([Get="castBodyId"]BodyId bodyId, float force_x, float force_y,  float point_x, float point_y, bool wake);
+
+/// Apply a force to the center of mass. This wakes up the body.
+/// @param force the world force vector, usually in Newtons (N).
+/// @param wake also wake up the body
+[Static, Internal="hbox2c::Body::ApplyForceToCenter"] void applyForceToCenter([Get="castBodyId"]BodyId bodyId, float force_x, float force_y, bool wake);
+
+/// Apply a torque. This affects the angular velocity
+/// without affecting the linear velocity of the center of mass.
+/// @param torque about the z-axis (out of the screen), usually in N-m.
+/// @param wake also wake up the body
+[Static, Internal="b2Body_ApplyTorque"] void applyTorque([Get="castBodyId"]BodyId bodyId, float torque, bool wake);
+
+/// Apply an impulse at a point. This immediately modifies the velocity.
+/// It also modifies the angular velocity if the point of application
+/// is not at the center of mass. This wakes up the body.
+/// This should be used for one-shot impulses. If you need a steady force,
+/// use a force instead, which will work better with the sub-stepping solver.
+/// @param impulse the world impulse vector, usually in N-seconds or kg-m/s.
+/// @param point the world position of the point of application.
+/// @param wake also wake up the body
+[Static, Internal="hbox2c::Body::ApplyLinearImpulse"] void applyLinearImpulse([Get="castBodyId"]BodyId bodyId, float impulse_x, float impulse_y, float point_x, float point_y, bool wake);
+
+/// Apply an impulse to the center of mass. This immediately modifies the velocity.
+/// This should be used for one-shot impulses. If you need a steady force,
+/// use a force instead, which will work better with the sub-stepping solver.
+/// @param impulse the world impulse vector, usually in N-seconds or kg-m/s.
+/// @param wake also wake up the body
+[Static, Internal="hbox2c::Body::ApplyLinearImpulseToCenter"] void applyLinearImpulseToCenter([Get="castBodyId"]BodyId bodyId, float impulse_x, float impulse_y, bool wake);
+
+/// Apply an angular impulse.
+/// This should be used for one-shot impulses. If you need a steady force,
+/// use a force instead, which will work better with the sub-stepping solver.
+/// @param impulse the angular impulse in units of
+/// kg*m*m/s
+/// @param wake also wake up the body
+[Static, Internal="b2Body_ApplyAngularImpulse"] void applyAngularImpulse([Get="castBodyId"]BodyId bodyId, float impulse, bool wake);
+
+/// Get the mass of the body (kilograms)
+[Static, Internal="b2Body_GetMass"] float getMass([Get="castBodyId"]BodyId bodyId);
+
+/// Get the inertia tensor of the body. In 2D this is a single number. (kilograms * meters^2)
+[Static, Internal="b2Body_GetInertiaTensor"] float getInertiaTensor([Get="castBodyId"]BodyId bodyId);
+
+/// Get the center of mass position of the body in local space.
+[Static, Internal="hbox2c::Body::GetLocalCenterOfMass"] void getLocalCenterOfMass([Get="castBodyId"]BodyId bodyId, Vec2 o_centerOfMass);
+
+/// Get the center of mass position of the body in world space.
+[Static, Internal="hbox2c::Body::GetWorldCenterOfMass"] void getWorldCenterOfMass([Get="castBodyId"]BodyId bodyId, Vec2 o_centerOfMass);
+
+/// Override the body's mass properties. Normally this is computed automatically using the
+///	shape geometry and density. This information is lost if a shape is added or removed or if the
+///	body type changes.
+//[Static, Internal="b2Body_SetMassData"] void SetMassData([Get="castBodyId"]BodyId bodyId, b2MassData massData);
+
+/// Get the mass data for a body.
+//[Static, Internal="b2Body_GetMassData"] b2MassData GetMassData([Get="castBodyId"]BodyId bodyId);
+
+/// This resets the mass properties to the sum of the mass properties of the shapes.
+/// This normally does not need to be called unless you called SetMassData to override
+/// the mass and you later want to reset the mass.
+///	You may also use this when automatic mass computation has been disabled.
+///	You should call this regardless of body type.
+[Static, Internal="b2Body_ApplyMassFromShapes"] void applyMassFromShapes([Get="castBodyId"] BodyId bodyId);
+
+/// Set the automatic mass setting.
+//[Static, Internal="b2Body_SetAutomaticMass"] void setAutomaticMass([Get="castBodyId"]BodyId bodyId, bool automaticMass);
+
+/// Get the automatic mass setting.
+//[Static, Internal="b2Body_GetAutomaticMass"] bool getAutomaticMass([Get="castBodyId"]BodyId bodyId);
+
+/// Adjust the linear damping. Normally this is set in b2BodyDef before creation.
+[Static, Internal="b2Body_SetLinearDamping"] void SetLinearDamping([Get="castBodyId"]BodyId bodyId, float linearDamping);
+
+/// Get the current linear damping.
+[Static, Internal="b2Body_GetLinearDamping"] float getLinearDamping([Get="castBodyId"]BodyId bodyId);
+
+/// Adjust the angular damping. Normally this is set in b2BodyDef before creation.
+[Static, Internal="b2Body_SetAngularDamping"] void SetAngularDamping([Get="castBodyId"]BodyId bodyId, float angularDamping);
+
+/// Get the current angular damping.
+[Static, Internal="b2Body_GetAngularDamping"] float getAngularDamping([Get="castBodyId"]BodyId bodyId);
+
+/// Adjust the gravity scale. Normally this is set in b2BodyDef before creation.
+[Static, Internal="b2Body_SetGravityScale"] void SetGravityScale([Get="castBodyId"]BodyId bodyId, float gravityScale);
+
+/// Get the current gravity scale.
+[Static, Internal="b2Body_GetGravityScale"] float getGravityScale([Get="castBodyId"]BodyId bodyId);
+
+/// Is this body awake?
+[Static, Internal="b2Body_IsAwake"] bool isAwake([Get="castBodyId"]BodyId bodyId);
+
+/// Wake a body from sleep. This wakes the entire island the body is touching.
+///	Putting a body to sleep will put the entire island of bodies touching this body to sleep,
+///	which can be expensive.
+[Static, Internal="b2Body_SetAwake"] void setAwake([Get="castBodyId"]BodyId bodyId, bool awake);
+
+/// Enable or disable sleeping this body. If sleeping is disabled the body will wake.
+[Static, Internal="b2Body_EnableSleep"] void enableSleep([Get="castBodyId"]BodyId bodyId, bool enableSleep);
+
+/// @return is sleeping enabled for this body?
+[Static, Internal="b2Body_IsSleepEnabled"] bool isSleepEnabled([Get="castBodyId"]BodyId bodyId);
+
+/// Set the sleep threshold. Normally in meters per second.
+[Static, Internal="b2Body_SetSleepThreshold"] void setSleepThreshold([Get="castBodyId"]BodyId bodyId, float sleepVelocity);
+
+/// Get the sleep threshold. Normally in meters per second.
+[Static, Internal="b2Body_GetSleepThreshold"] float getSleepThreshold([Get="castBodyId"]BodyId bodyId);
+
+/// Is this body enabled?
+[Static, Internal="b2Body_IsEnabled"] bool isEnabled([Get="castBodyId"]BodyId bodyId);
+
+/// Disable a body by removing it completely from the simulation
+[Static, Internal="b2Body_Disable"] void disable([Get="castBodyId"]BodyId bodyId);
+
+/// Enable a body by adding it to the simulation
+[Static, Internal="b2Body_Enable"] void enable([Get="castBodyId"]BodyId bodyId);
+
+/// Set this body to have fixed rotation. This causes the mass to be reset in all cases.
+[Static, Internal="b2Body_SetFixedRotation"] void setFixedRotation([Get="castBodyId"]BodyId bodyId, bool flag);
+
+/// Does this body have fixed rotation?
+[Static, Internal="b2Body_IsFixedRotation"] bool isFixedRotation([Get="castBodyId"]BodyId bodyId);
+
+/// Set this body to be a bullet. A bullet does continuous collision detection
+/// against dynamic bodies (but not other bullets).
+[Static, Internal="b2Body_SetBullet"] void setBullet([Get="castBodyId"]BodyId bodyId, bool flag);
+
+/// Is this body a bullet?
+[Static, Internal="b2Body_IsBullet"] bool isBullet([Get="castBodyId"]BodyId bodyId);
+
+/// Enable/disable hit events on all shapes.
+[Static, Internal="b2Body_EnableHitEvents"] void enableHitEvents([Get="castBodyId"]BodyId bodyId, bool enableHitEvents);
+
+/// Get the number of shapes on this body
+[Static, Internal="b2Body_GetShapeCount"] int getShapeCount([Get="castBodyId"]BodyId bodyId);
+
+/// Get the shape ids for all shapes on this body, up to the provided capacity.
+///	@returns the number of shape ids stored in the user array
+//[Static, Internal="b2Body_GetShapes"] int getShapes([Get="castBodyId"]BodyId bodyId, b2ShapeId* shapeArray, int capacity);
+
+/// Get the number of joints on this body
+[Static, Internal="b2Body_GetJointCount"] int getJointCount([Get="castBodyId"]BodyId bodyId);
+
+/// Get the joint ids for all joints on this body, up to the provided capacity
+///	@returns the number of joint ids stored in the user array
+//[Static, Internal="b2Body_GetJoints"] int getJoints([Get="castBodyId"]BodyId bodyId, b2JointId* jointArray, int capacity);
+
+/// Get the maximum capacity required for retrieving all the touching contacts on a body
+[Static, Internal="b2Body_GetContactCapacity"] int getContactCapacity([Get="castBodyId"]BodyId bodyId);
+
+/// Get the touching contact data for a body
+//[Static, Internal="b2Body_GetContactData"] int getContactData([Get="castBodyId"]BodyId bodyId, b2ContactData* contactData, int capacity);
+
+/// Get the current world AABB that contains all the attached shapes. Note that this may not emcompass the body origin.
+///	If there are no shapes attached then the returned AABB is empty and centered on the body origin.
+[Static, Internal="hbox2c::Body::ComputeAABB"] void computeAABB([Get="castBodyId"]BodyId bodyId, AABB aabb);
+
 };
 
 
