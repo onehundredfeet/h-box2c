@@ -261,7 +261,7 @@ interface BodyDef {
 };
 
 [NoDelete]
-interface Body {
+interface BodyFunc {
 
 
 /// Create a circle shape and attach it to a body. The shape definition and geometry are fully cloned.
