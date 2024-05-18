@@ -658,7 +658,7 @@ interface Manifold
 //bool (ShapeId shapeIdA, ShapeId shapeIdB, Manifold manifold, dynamic context) PreSolveFcn
 
 [NoDelete]
-interface World {
+interface WorldFunc {
 
 /// Destroy a world.
 [Static, Internal="b2DestroyWorld"] void destroy([Get="castWorldId"] WorldId worldId);
