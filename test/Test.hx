@@ -4,7 +4,9 @@ import box2c.Native.BodyDef;
 import box2c.Native.BodyType;
 import box2c.Native.World;
 import box2c.Native.ShapeDef;
+import box2c.Native.Transform;
 import box2c.Body;
+import haxe.Timer;
 
 class Test {
 
@@ -29,15 +31,24 @@ class Test {
             var shapeDef = new ShapeDef();
             body.createCircleShape( shapeDef, 0.5, 0.0, 2.0);
             body.setTransform( 0.0, 10.0, 0.0);
+            var transform = new Transform();
+            body.getTransform(transform);
 		}
 
 
 
+
+        var iterations = 100000;
+
         trace('Created world... ${world}');
-        for (i in 0...100) {
-            trace('Step... ${i}');
-            worldContext.step(world, 1/100.0, 1);
+        var time = Timer.stamp();
+
+        for (i in 0...iterations) {
+            worldContext.step(world, 1/1000.0, 1);
         }
+        var delta = Timer.stamp() - time;
+
+        trace('Stepped ${iterations} times... in ${delta} seconds = ${(delta/iterations) * 1000} ms per step');
 
         worldContext.destroyWorld(world);
 
