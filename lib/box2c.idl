@@ -198,8 +198,8 @@ interface Polygon
 /// A body definition holds all the data needed to construct a rigid body.
 /// You can safely re-use body definitions. Shapes are added to a body after construction.
 [Internal="hbox2c::BodyDef"]
-interface BodyDef {
-	void BodyDef();
+interface BodyDefinition {
+	void BodyDefinition();
 	
 	/// The body type: static, kinematic, or dynamic.
 	/// Note: if a dynamic body would have zero mass, the mass is set to one.
@@ -260,6 +260,15 @@ interface BodyDef {
 
 };
 
+
+[NoDelete]
+interface ShapeFunc {
+	/// Destroy any shape type
+	 [Static, Internal="hbox2c::Body::DestroyShape"] void destroyShape([Get="castShapeId"]ShapeId shapeId);
+
+	[Static, Internal="b2Shape_IsValid"] bool isValid([Get="castBodyId"] BodyId id);
+};
+
 [NoDelete]
 interface BodyFunc {
 
@@ -283,9 +292,6 @@ interface BodyFunc {
 /// Contacts are not created until the next time step.
 ///	@return the shape id for accessing the shape
 // [Static, Internal="hbox2c::Body::CreatePolygonShape", Get="cast"] ShapeId createPolygonShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, b2Polygon* polygon);
-
-/// Destroy any shape type
- [Static, Internal="hbox2c::Body::DestroyShape"] void destroyShape([Get="castShapeId"]ShapeId shapeId);
 
 
  
@@ -754,7 +760,7 @@ interface WorldFunc {
 /// Dump memory stats to box2d_memory.txt
 [Static, Internal="b2World_DumpMemoryStats"] void dumpMemoryStats([Get="castWorldId"] WorldId worldId);
 
-[Static, Internal="b2CreateBody", Get="cast"] BodyId createBody([Get="castWorldId"] WorldId worldId, BodyDef def);
+[Static, Internal="b2CreateBody", Get="cast"] BodyId createBody([Get="castWorldId"] WorldId worldId, BodyDefinition def);
 };
 
 [Internal="hbox2c::WorldContext"]
