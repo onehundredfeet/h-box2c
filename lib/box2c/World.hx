@@ -8,6 +8,16 @@ abstract World(Int) from Int to Int {
         WorldFunc.destroy(this);
     }
 
+    public inline function createBody(def : BodyDef) {
+        return WorldFunc.createBody(this, def);
+    
+    }
+
+    public inline function  isValid() {
+        return WorldFunc.isValid(this);
+    }
+
+
 /*
 /// World identifier validation. Provides validation for up to 64K allocations.
 [Static, Internal="b2World_IsValid"] bool isValid([Get="castWorldId"] WorldId id);

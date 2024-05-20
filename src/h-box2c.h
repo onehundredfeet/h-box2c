@@ -59,6 +59,21 @@ inline int64_t cast( b2QueryFilter id) {
     return *reinterpret_cast<int64_t *>(&id);
 }
 
+inline int32_t getCategoryBits( int64_t filter64 ) {
+    return castQueryFilter(filter64).categoryBits;
+}
+
+inline int32_t getMaskBits( int64_t filter64 ) {
+    return castQueryFilter(filter64).maskBits;
+}
+
+inline int64_t makeQueryFilter(int32_t categoryBits, int32_t maskBits) {
+    b2QueryFilter filter;
+    filter.categoryBits = categoryBits;
+    filter.maskBits = maskBits;
+    return cast(filter);
+}
+
 namespace hbox2c
 {
 
@@ -395,6 +410,9 @@ public:
     ShapeDef() {
         static_cast<b2ShapeDef&>(*this) = b2DefaultShapeDef();
     }
+    void clear() {
+        static_cast<b2ShapeDef&>(*this) = b2DefaultShapeDef();
+    }
 };
 
 class Body {
@@ -414,6 +432,10 @@ static b2ShapeId CreateCapsuleShape(b2BodyId bodyId, ShapeDef *def, float center
     b2Capsule capsule = {{center_1_x, center_1_y}, {center_2_x, center_2_y}, radius};
 
     return b2CreateCapsuleShape(bodyId, def, &capsule);
+}
+
+static b2ShapeId CreatePolygonShape(b2BodyId bodyId, ShapeDef *def, b2Polygon *polygon) {
+    return b2CreatePolygonShape(bodyId, def, polygon);
 }
 
 static void DestroyShape(b2ShapeId shapeId) {
@@ -566,7 +588,13 @@ class Polygon : public b2Polygon {
         *poly = b2TransformPolygon(transform, polygon);
         return poly->count > 0;
     }
+    
+    void translate( float x, float y) {
+        b2Polygon tmp = *this;
 
+        b2Polygon *poly = this;
+        *poly = b2TransformPolygon({{x, y}, {1, 0}}, &tmp);
+    }
 
 };
 

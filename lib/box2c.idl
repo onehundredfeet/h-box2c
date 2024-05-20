@@ -96,6 +96,25 @@ interface SensorEvents
 	attribute int endCount;
 } ;
 
+[NoDelete]
+interface QueryFunc {
+	[Static, Internal="b2DefaultQueryFilter", Get="cast"] QueryFilter getDefault();
+
+	/// The collision category bits. Normally you would just set one bit.
+	[Static] int getCategoryBits(QueryFilter filter);
+	
+	/// The collision mask bits. This states the categories that this
+	/// shape would accept for collision.
+	[Static] int getMaskBits(QueryFilter filter);
+
+	/// The collision mask bits. This states the categories that this
+	/// shape would accept for collision.
+	[Static] QueryFilter makeQueryFilter(int categoryBits, int maskBits);
+
+
+
+};
+
 /// A begin touch event is generated when two shapes begin touching. By convention the manifold
 /// normal points from shape A to shape B.
 [NoDelete, Internal="b2ContactBeginTouchEvent"]
@@ -193,6 +212,9 @@ interface Polygon
 
 	/// Transform a polygon. This is useful for transferring a shape from one body to another.
 	bool fromTransformedPolygon(float transform_x, float transform_y, float transform_rot, Polygon polygon);
+
+	// Translate polygon
+	void translate( float x, float y);
 };
 
 /// A body definition holds all the data needed to construct a rigid body.
@@ -266,7 +288,7 @@ interface ShapeFunc {
 	/// Destroy any shape type
 	 [Static, Internal="hbox2c::Body::DestroyShape"] void destroyShape([Get="castShapeId"]ShapeId shapeId);
 
-	[Static, Internal="b2Shape_IsValid"] bool isValid([Get="castBodyId"] BodyId id);
+	[Static, Internal="b2Shape_IsValid"] bool isValid([Get="castShapeId"] ShapeId id);
 };
 
 [NoDelete]
@@ -276,24 +298,22 @@ interface BodyFunc {
 /// Create a circle shape and attach it to a body. The shape definition and geometry are fully cloned.
 /// Contacts are not created until the next time step.
 ///	@return the shape id for accessing the shape
-[Static, Internal="hbox2c::Body::CreateCircleShape", Get="cast"] ShapeId createCircleShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, float center_x, float center_y, float radius);
+[Static, Internal="hbox2c::Body::CreateCircleShape", Get="cast"] ShapeId createCircleShape([Get="castBodyId"] BodyId bodyId, ShapeDefinition def, float center_x, float center_y, float radius);
 
 /// Create a line segment shape and attach it to a body. The shape definition and geometry are fully cloned.
 /// Contacts are not created until the next time step.
 ///	@return the shape id for accessing the shape
-[Static, Internal="hbox2c::Body::CreateSegmentShape", Get="cast"] ShapeId createSegmentShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, float point_1_x, float point_1_y, float point_2_x, float point_2_y);
+[Static, Internal="hbox2c::Body::CreateSegmentShape", Get="cast"] ShapeId createSegmentShape([Get="castBodyId"] BodyId bodyId, ShapeDefinition def, float point_1_x, float point_1_y, float point_2_x, float point_2_y);
 
 /// Create a capsule shape and attach it to a body. The shape definition and geometry are fully cloned.
 /// Contacts are not created until the next time step.
 ///	@return the shape id for accessing the shape
-[Static, Internal="hbox2c::Body::CreateCapsuleShape", Get="cast"] ShapeId createCapsuleShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, float center_1_x, float center_1_y, float center_2_x, float center_2_y, float radius);
+[Static, Internal="hbox2c::Body::CreateCapsuleShape", Get="cast"] ShapeId createCapsuleShape([Get="castBodyId"] BodyId bodyId, ShapeDefinition def, float center_1_x, float center_1_y, float center_2_x, float center_2_y, float radius);
 
 /// Create a polygon shape and attach it to a body. The shape definition and geometry are fully cloned.
 /// Contacts are not created until the next time step.
 ///	@return the shape id for accessing the shape
-// [Static, Internal="hbox2c::Body::CreatePolygonShape", Get="cast"] ShapeId createPolygonShape([Get="castBodyId"] BodyId bodyId, ShapeDef def, b2Polygon* polygon);
-
-
+[Static, Internal="b2CreatePolygonShape", Get="cast"] ShapeId createPolygonShape([Get="castBodyId"] BodyId bodyId, ShapeDefinition def, Polygon polygon);
  
 /// Body identifier validation. Provides validation for up to 64K allocations.
 [Static, Internal="b2Body_IsValid"] bool isValid([Get="castBodyId"] BodyId id);
@@ -544,13 +564,21 @@ interface b2Filter
 	/// or always collide (positive). Zero means no collision group. Non-zero group
 	/// filtering always wins against the mask bits.
 	attribute int groupIndex;
-} ;
+};
 
 /// Used to create a shape
 [Internal="hbox2c::ShapeDef"]
-interface ShapeDef
+interface ShapeDefinition
 {
-	void ShapeDef();
+	void ShapeDefinition();
+
+	// friction = 0.6f;
+	// density = 1.0f;
+	// filter = b2DefaultFilter();
+	// enableSensorEvents = true;
+	// enableContactEvents = true;
+
+	void clear(); // reset to defaults
 
 	/// Use this to store application specific shape data.
 	[Get="cast"] attribute dynamic userData;
@@ -565,9 +593,16 @@ interface ShapeDef
 	attribute float density;
 
 	/// Contact filtering data.
-	//attribute b2Filter filter;
+	/// The collision category bits. Normally you would just set one bit.
 	[Internal="filter.categoryBits"] attribute uint categoryBits;
+
+	/// The collision mask bits. This states the categories that this
+	/// shape would accept for collision.	
 	[Internal="filter.maskBits"] attribute uint maskBits;
+
+	/// Collision groups allow a certain group of objects to never collide (negative)
+	/// or always collide (positive). Zero means no collision group. Non-zero group
+	/// filtering always wins against the mask bits.
 	[Internal="filter.groupIndex"] attribute int groupIndex;
 
 	/// A sensor shape collects contact information but never generates a collision response.
