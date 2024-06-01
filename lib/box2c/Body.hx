@@ -7,7 +7,12 @@ import box2c.Native.BodyFunc;
 import box2c.Native.ShapeFunc;
 import box2c.Native.Transform;
 import box2c.Native.Polygon;
+import hvector.Float2;
+import hvector.Vec2;
 
+#if hl
+import hl.NativeArray;
+#end
 
 abstract Body(haxe.Int64) from haxe.Int64 to haxe.Int64 {
     public static inline final INVALID = 0;
@@ -41,6 +46,34 @@ abstract Body(haxe.Int64) from haxe.Int64 to haxe.Int64 {
     public inline function getTransform(t : Transform) : Void {
         return BodyFunc.getTransform(this, t);
     }
+    public inline function getTransformAsArray(t : NativeArray<Single>) : Void {
+        return BodyFunc.getTransformAsArray(this, t);
+    }
+
+    public inline function getLinearVelocity(v : Vec2) : Void {
+        return BodyFunc.getLinearVelocity(this, v);
+    }
+    public inline function getLinearVelocityAsArray(v : NativeArray<Single>) : Void {
+        return BodyFunc.getLinearVelocityAsArray(this, v);
+    }
+    public inline function getLinearVelocityF(v : Float2) : Void {
+        return BodyFunc.getLinearVelocityF(this, v);
+    }
+
+    public inline function getAngle() : Float {
+        return BodyFunc.getAngle(this);
+    }
+
+    public inline function getPosition(v : Vec2) : Void {
+        return BodyFunc.getPosition(this, v);
+    }
+    public inline function getRotation(v : Vec2) : Void {
+        return BodyFunc.getRotation(this, v);
+    }
+
+    public inline function getAngularVelocity() : Float {
+        return BodyFunc.getAngularVelocity(this);
+    }
 
     public inline function addDefaultCircleShape(x : Float, y: Float, r:Float):Shape {
         var def = ShapeDef.rent();
@@ -52,6 +85,9 @@ abstract Body(haxe.Int64) from haxe.Int64 to haxe.Int64 {
         return shapeID;
 
 	}
+    public inline function applyForceToCenterF( force : Float2, wake : Bool) {
+        return BodyFunc.applyForceToCenter(this, force.x, force.y, wake);
+    }
 
     static var _polygons = new Array<Polygon>();
 

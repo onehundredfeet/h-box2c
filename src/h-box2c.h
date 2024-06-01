@@ -442,35 +442,47 @@ static void DestroyShape(b2ShapeId shapeId) {
     b2DestroyShape(shapeId);
 }
 
-static void GetPosition(b2BodyId bodyId, b2Vec2 *pos) {
-    *pos = b2Body_GetPosition(bodyId);
+static void GetPosition(b2BodyId bodyId, _h_float2 *pos) {
+    b2Vec2 *t = (b2Vec2 *)pos;
+    *t = b2Body_GetPosition(bodyId);
 }
 
-static void GetRotation(b2BodyId bodyId, b2Vec2 *rot) {
-    *(b2Rot *)rot = b2Body_GetRotation(bodyId);
+static void GetRotation(b2BodyId bodyId, _h_float2 *rot) {
+    b2Rot *t = (b2Rot *)rot;
+    *t = b2Body_GetRotation(bodyId);
 }
 static void GetTransform(b2BodyId bodyId, b2Transform *t) {
     *t = b2Body_GetTransform(bodyId);
+}
+
+static void GetTransformAsArray(b2BodyId bodyId, float *t) {
+    b2Vec2 *pos = (b2Vec2 *)t;
+    *pos = b2Body_GetPosition(bodyId);
+    *(&t[2]) = b2Body_GetAngle(bodyId);
 }
 
 static void SetTransform(b2BodyId bodyId,float x, float y, float angle) {
     b2Body_SetTransform(bodyId, {x, y}, angle);
 }
 
-static void GetLocalPoint(b2BodyId bodyId, float x, float y, b2Vec2 *point) {
-    *point = b2Body_GetLocalPoint(bodyId, {x, y});
+static void GetLocalPoint(b2BodyId bodyId, float x, float y, _h_float2 *point) {
+    b2Vec2 *t = (b2Vec2 *)point;
+    *t = b2Body_GetLocalPoint(bodyId, {x, y});
 }
 
-static void GetWorldPoint(b2BodyId bodyId, float x, float y, b2Vec2 *point) {
-    *point = b2Body_GetWorldPoint(bodyId, {x, y});
+static void GetWorldPoint(b2BodyId bodyId, float x, float y, _h_float2 *point) {
+    b2Vec2 *t = (b2Vec2 *)point;
+    *t = b2Body_GetWorldPoint(bodyId, {x, y});
 }
 
-static void GetLocalVector(b2BodyId bodyId, float x, float y, b2Vec2 *vector) {
-    *vector = b2Body_GetLocalVector(bodyId, {x, y});
+static void GetLocalVector(b2BodyId bodyId, float x, float y, _h_float2 *vector) {
+    b2Vec2 *t = (b2Vec2 *)vector;
+    *t = b2Body_GetLocalVector(bodyId, {x, y});
 }
 
-static void GetWorldVector(b2BodyId bodyId, float x, float y, b2Vec2 *vector) {
-    *vector = b2Body_GetWorldVector(bodyId, {x, y});
+static void GetWorldVector(b2BodyId bodyId, float x, float y, _h_float2 *vector) {
+    b2Vec2 *t = (b2Vec2 *)vector;
+    *t = b2Body_GetWorldVector(bodyId, {x, y});
 }
 
 static void ApplyForce(b2BodyId bodyId, float force_x, float force_y, float point_x, float point_y, bool wake) {
@@ -489,20 +501,37 @@ static void ApplyLinearImpulseToCenter(b2BodyId bodyId, float impulse_x, float i
     b2Body_ApplyLinearImpulseToCenter(bodyId, {impulse_x, impulse_y}, wake);
 }
 
-static void GetLocalCenterOfMass(b2BodyId bodyId, b2Vec2 *center) {
-    *center = b2Body_GetLocalCenterOfMass(bodyId);
+static void GetLocalCenterOfMass(b2BodyId bodyId, _h_float2 *center) {
+    b2Vec2 *t = (b2Vec2 *)center;
+    *t = b2Body_GetLocalCenterOfMass(bodyId);
 }
 
-static void GetWorldCenterOfMass(b2BodyId bodyId, b2Vec2 *center) {
-    *center = b2Body_GetWorldCenterOfMass(bodyId);
+static void GetWorldCenterOfMass(b2BodyId bodyId, _h_float2 *center) {
+    b2Vec2 *t = (b2Vec2 *)center;
+    *t = b2Body_GetWorldCenterOfMass(bodyId);
 }
 
 static void SetLinearVelocity(b2BodyId bodyId, float x, float y) {
     b2Body_SetLinearVelocity(bodyId, {x, y});
 }
 
-static void GetLinearVelocity(b2BodyId bodyId, b2Vec2 *velocity) {
-    *velocity = b2Body_GetLinearVelocity(bodyId);
+static void GetLinearVelocity(b2BodyId bodyId, _h_float2 *velocity) {
+    b2Vec2 *t = (b2Vec2 *)velocity;
+    *t = b2Body_GetLinearVelocity(bodyId);
+}
+
+static void GetLinearVelocityF(b2BodyId bodyId, _h_double2 *velocity) {
+    b2Vec2 tv = b2Body_GetLinearVelocity(bodyId);
+    velocity->x = tv.x;
+    velocity->y = tv.y;
+}
+static void GetLinearVelocityS(b2BodyId bodyId, _h_float2 *velocity) {
+    b2Vec2 *v = (b2Vec2 *)velocity;
+    *v = b2Body_GetLinearVelocity(bodyId);
+}
+static void GetLinearVelocityAsArray(b2BodyId bodyId, float *velocity) {
+    b2Vec2 *v = (b2Vec2 *)velocity;
+    *v = b2Body_GetLinearVelocity(bodyId);
 }
 
 static void ComputeAABB(b2BodyId bodyId, b2AABB *aabb) {

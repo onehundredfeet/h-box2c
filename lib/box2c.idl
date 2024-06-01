@@ -15,12 +15,6 @@ enum BodyType
 	"dynamicBody"
 };
 
-[Internal="b2Vec2"]
-interface Vec2 {
-	void Vec2();
-	attribute float x;
-	attribute float y;
-};
 
 [Internal="b2AABB"]
 interface AABB {
@@ -332,34 +326,38 @@ interface BodyFunc {
 [Static, Internal="b2Body_GetUserData", Get="cast"] dynamic getUserData([Get="castBodyId"] BodyId bodyId);
 
 /// Get the world position of a body. This is the location of the body origin.
-[Static, Internal="hbox2c::Body::GetPosition"] void getPosition([Get="castBodyId"] BodyId bodyId, Vec2 o_position);
+[Static, Internal="hbox2c::Body::GetPosition"] void getPosition([Get="castBodyId"] BodyId bodyId, float2 o_position);
 
 /// Get the world rotation of a body as a sine/cosine pair.
-[Static, Internal="hbox2c::Body::GetRotation"] void getRotation([Get="castBodyId"] BodyId bodyId, Vec2 quat);
+[Static, Internal="hbox2c::Body::GetRotation"] void getRotation([Get="castBodyId"] BodyId bodyId, float2 quat);
 
 /// Get the body angle in radians in the range [-pi, pi]
 [Static, Internal="b2Body_GetAngle"] float getAngle([Get="castBodyId"] BodyId bodyId);
 
 /// Get the world transform of a body.
 [Static, Internal="hbox2c::Body::GetTransform"] void getTransform([Get="castBodyId"] BodyId bodyId, Transform transform);
+[Static, Internal="hbox2c::Body::GetTransformAsArray"] void getTransformAsArray([Get="castBodyId"] BodyId bodyId, float [] transform); // 3 floats
 
 /// Set the world transform of a body. This acts as a teleport and is fairly expensive.
 [Static, Internal="hbox2c::Body::SetTransform"] void setTransform([Get="castBodyId"] BodyId bodyId, float position_x, float position_y, float angle);
 
 /// Get a local point on a body given a world point
-[Static, Internal="hbox2c::Body::GetLocalPoint"] void getLocalPoint([Get="castBodyId"] BodyId bodyId, float worldPoint_x, float worldPoint_y, Vec2 o_position );
+[Static, Internal="hbox2c::Body::GetLocalPoint"] void getLocalPoint([Get="castBodyId"] BodyId bodyId, float worldPoint_x, float worldPoint_y, float2 o_position );
 
 /// Get a world point on a body given a local point
-[Static, Internal="hbox2c::Body::GetWorldPoint"] void getWorldPoint([Get="castBodyId"] BodyId bodyId, float localPoint_x, float localPoint_y, Vec2 o_position );
+[Static, Internal="hbox2c::Body::GetWorldPoint"] void getWorldPoint([Get="castBodyId"] BodyId bodyId, float localPoint_x, float localPoint_y, float2 o_position );
 
 /// Get a local vector on a body given a world vector
-[Static, Internal="hbox2c::Body::GetLocalVector"] void getLocalVector([Get="castBodyId"] BodyId bodyId, float worldVector_x, float worldVector_y, Vec2 o_vector );
+[Static, Internal="hbox2c::Body::GetLocalVector"] void getLocalVector([Get="castBodyId"] BodyId bodyId, float worldVector_x, float worldVector_y, float2 o_vector );
 
 /// Get a world vector on a body given a local vector
-[Static, Internal="hbox2c::Body::GetWorldVector"] void getWorldVector([Get="castBodyId"] BodyId bodyId, float localVector_x, float localVector_y, Vec2 o_vector );
+[Static, Internal="hbox2c::Body::GetWorldVector"] void getWorldVector([Get="castBodyId"] BodyId bodyId, float localVector_x, float localVector_y, float2 o_vector );
 
 /// Get the linear velocity of a body's center of mass
-[Static, Internal="hbox2c::Body::GetLinearVelocity"] void getLinearVelocity([Get="castBodyId"] BodyId bodyId, Vec2 o_velocity);
+[Static, Internal="hbox2c::Body::GetLinearVelocity"] void getLinearVelocity([Get="castBodyId"] BodyId bodyId, float2 o_velocity);
+[Static, Internal="hbox2c::Body::GetLinearVelocityAsArray"] void getLinearVelocityAsArray([Get="castBodyId"] BodyId bodyId, float [] o_velocity);
+[Static, Internal="hbox2c::Body::GetLinearVelocityS"] void getLinearVelocityS([Get="castBodyId"] BodyId bodyId, float2 o_velocity);
+[Static, Internal="hbox2c::Body::GetLinearVelocityF"] void getLinearVelocityF([Get="castBodyId"] BodyId bodyId, double2 o_velocity);
 
 /// Get the angular velocity of a body in radians per second
 [Static, Internal="b2Body_GetAngularVelocity"] float getAngularVelocity([Get="castBodyId"] BodyId bodyId);
@@ -421,10 +419,10 @@ interface BodyFunc {
 [Static, Internal="b2Body_GetInertiaTensor"] float getInertiaTensor([Get="castBodyId"]BodyId bodyId);
 
 /// Get the center of mass position of the body in local space.
-[Static, Internal="hbox2c::Body::GetLocalCenterOfMass"] void getLocalCenterOfMass([Get="castBodyId"]BodyId bodyId, Vec2 o_centerOfMass);
+[Static, Internal="hbox2c::Body::GetLocalCenterOfMass"] void getLocalCenterOfMass([Get="castBodyId"]BodyId bodyId, float2 o_centerOfMass);
 
 /// Get the center of mass position of the body in world space.
-[Static, Internal="hbox2c::Body::GetWorldCenterOfMass"] void getWorldCenterOfMass([Get="castBodyId"]BodyId bodyId, Vec2 o_centerOfMass);
+[Static, Internal="hbox2c::Body::GetWorldCenterOfMass"] void getWorldCenterOfMass([Get="castBodyId"]BodyId bodyId, float2 o_centerOfMass);
 
 /// Override the body's mass properties. Normally this is computed automatically using the
 ///	shape geometry and density. This information is lost if a shape is added or removed or if the
