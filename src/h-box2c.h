@@ -464,6 +464,9 @@ static void GetTransformAsArray(b2BodyId bodyId, float *t) {
 static void SetTransform(b2BodyId bodyId,float x, float y, float angle) {
     b2Body_SetTransform(bodyId, {x, y}, angle);
 }
+static void SetTransformF(b2BodyId bodyId,_h_double2 *point, float angle) {
+    b2Body_SetTransform(bodyId, {(float)point->x, (float)point->y}, angle);
+}
 
 static void GetLocalPoint(b2BodyId bodyId, float x, float y, _h_float2 *point) {
     b2Vec2 *t = (b2Vec2 *)point;

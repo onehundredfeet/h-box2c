@@ -340,6 +340,7 @@ interface BodyFunc {
 
 /// Set the world transform of a body. This acts as a teleport and is fairly expensive.
 [Static, Internal="hbox2c::Body::SetTransform"] void setTransform([Get="castBodyId"] BodyId bodyId, float position_x, float position_y, float angle);
+[Static, Internal="hbox2c::Body::SetTransformF"] void setTransformF([Get="castBodyId"] BodyId bodyId, double2 position, float angle);
 
 /// Get a local point on a body given a world point
 [Static, Internal="hbox2c::Body::GetLocalPoint"] void getLocalPoint([Get="castBodyId"] BodyId bodyId, float worldPoint_x, float worldPoint_y, float2 o_position );

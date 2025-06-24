@@ -42,6 +42,9 @@ abstract Body(haxe.Int64) from haxe.Int64 to haxe.Int64 {
     public inline function setTransform( x : Float, y : Float, angle : Float) : Void {
         return BodyFunc.setTransform(this, x, y, angle);
     }
+    public inline function setTransformF( p : Float2, angle : Float) : Void {
+        return BodyFunc.setTransformF(this, p, angle);
+    }
 
     public inline function getTransform(t : Transform) : Void {
         return BodyFunc.getTransform(this, t);
@@ -75,6 +78,14 @@ abstract Body(haxe.Int64) from haxe.Int64 to haxe.Int64 {
         return BodyFunc.getAngularVelocity(this);
     }
 
+    public inline function setLinearVelocity(x : Float, y : Float) : Void {
+        BodyFunc.setLinearVelocity(this, x, y);
+    }
+
+    public inline function setAngularVelocity(v : Float) : Void {
+        BodyFunc.setAngularVelocity(this, v);
+    }
+
     public inline function addDefaultCircleShape(x : Float, y: Float, r:Float):Shape {
         var def = ShapeDef.rent();
 
@@ -86,7 +97,10 @@ abstract Body(haxe.Int64) from haxe.Int64 to haxe.Int64 {
 
 	}
     public inline function applyForceToCenterF( force : Float2, wake : Bool) {
-        return BodyFunc.applyForceToCenter(this, force.x, force.y, wake);
+        BodyFunc.applyForceToCenter(this, force.x, force.y, wake);
+    }
+    public inline function applyTorque( torque : Float,  wake : Bool) {
+        BodyFunc.applyTorque(this, torque, wake);
     }
 
     static var _polygons = new Array<Polygon>();
