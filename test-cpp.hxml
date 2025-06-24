@@ -1,0 +1,20 @@
+--class-path test
+--library hl-idl
+--library hvector
+--library h-box2d
+--main Test
+--macro idl.macros.MacroTools.hxcppInit("box2d.idl")
+--cpp cpp
+-D no-compilation
+-D HXCPP_VERBOSE
+-D HXCPP_STACK_TRACE
+-D HXCPP_STACK_LINE
+-D HXCPP_CHECK_POINTER
+-D HXCPP_DEBUG_LINK
+-D HXCPP_CATCH_SEGV
+ --next
+  --library hl-idl
+# -D cmake_idl_verbose=4
+ -D HXCPP_VERBOSE
+ --run idl.CMakeGenerateHXCPP 
+  cpp

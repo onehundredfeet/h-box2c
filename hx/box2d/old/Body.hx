@@ -1,12 +1,12 @@
-package box2c;
-import box2c.Native.WorldContext;
-import box2c.Native.BodyType;
-import box2c.Native.WorldFunc;
-import box2c.ShapeDef;
-import box2c.Native.BodyFunc;
-import box2c.Native.ShapeFunc;
-import box2c.Native.Transform;
-import box2c.Native.Polygon;
+package box2d;
+import box2d.Native.WorldContext;
+import box2d.Native.BodyType;
+import box2d.Native.WorldFunc;
+import box2d.ShapeDef;
+import box2d.Native.BodyFunc;
+import box2d.Native.ShapeFunc;
+import box2d.Native.Transform;
+import box2d.Native.Polygon;
 import hvector.Float2;
 import hvector.Vec2;
 

@@ -4,7 +4,7 @@ import idl.Options;
 
 class Build extends idl.BuildBase {
 	// Put any necessary includes in this string and they will be added to the generated files
-	inline static final packageName = "box2c";
+	inline static final packageName = "box2d";
 
 	var options = {
 		idlFile: 'lib/${packageName}.idl',
@@ -33,7 +33,7 @@ class Build extends idl.BuildBase {
 #pragma warning(disable:4316)
 #endif
 
-#include \"h-box2c.h\"
+#include \"h-box2d.h\"
 ";
 
 	public static function main() {

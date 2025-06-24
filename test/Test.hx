@@ -1,11 +1,11 @@
 package ;
-import box2c.Native.WorldContext;
-import box2c.Native.BodyDef;
-import box2c.Native.BodyType;
-import box2c.Native.World;
-import box2c.Native.ShapeDef;
-import box2c.Native.Transform;
-import box2c.Body;
+// import box2d.Native.WorldContext;
+// import box2d.Native.BodyDef;
+// import box2d.Native.BodyType;
+// import box2d.Native.World;
+// import box2d.Native.ShapeDef;
+// import box2d.Native.Transform;
+import box2d.Box2d;
 import haxe.Timer;
 
 class Test {
@@ -14,24 +14,24 @@ class Test {
         trace('Testing box 2c');
 
         WorldContext.EnableDebug();
-        var worldContext = new WorldContext(40);
+        var worldContext = WorldContextPtr.alloc(40);
 
         var world  = worldContext.createWorld();
 
 
         {
-            var bodyDef = new BodyDef();
+            var bodyDef = BodyDef.make();
 			// b2BodyDef bodyDef = b2DefaultBodyDef();
 			bodyDef.type = BodyType.dynamicBody;
-            var body : Body = World.createBody(world, bodyDef);
+            var body = world.createBody(bodyDef);
 			// bodyDef.position = b2Body_GetPosition(m_ship1Id);
 			// bodyDef.angle = b2Body_GetAngle(m_ship1Id);
 			// // bodyDef.gravityScale = 0.0f;
 
-            var shapeDef = new ShapeDef();
+            var shapeDef = ShapeDef.make();
             body.createCircleShape( shapeDef, 0.5, 0.0, 2.0);
             body.setTransform( 0.0, 10.0, 0.0);
-            var transform = new Transform();
+            var transform = Transform.make();
             body.getTransform(transform);
 		}
 

@@ -1,6 +1,4 @@
-package box2c;
-
-import box2c.Native.ShapeFunc;
+package box2d;
 
 
 abstract Shape(haxe.Int64) from haxe.Int64 to haxe.Int64 {

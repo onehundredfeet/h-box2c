@@ -1,0 +1,13 @@
+<xml>
+   <set name="BOX2D_ROOT" value="${BOX2D_IDL_DIR}/../lib/release/box2d"/>
+
+   <cppflag value="-I${BOX2D_ROOT}/include"/>
+   <cppflag value="-I${BOX2D_IDL_DIR}/../src"/>
+   
+  <findlib value="box2d" dir="${BOX2D_ROOT}/lib/cmake/box2d" link="true"/>
+
+   <set name="ENKITS_ROOT" value="${BOX2D_IDL_DIR}/../lib/release/enkiTS"/>
+    <cppflag value="-I${ENKITS_ROOT}/include"/>
+    <findlib value="enkiTS" dir="${ENKITS_ROOT}/lib/cmake/enkiTS" link="true"/>
+</xml>
+
