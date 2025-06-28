@@ -6,6 +6,6 @@
 	"description" : "box2d Physics API for Haxe using h-idl",
 	"version" : "0.1.0",
 	"releasenote" : "",
-	"classPath": "hx/",
+	"classPath": "hx",
 	"dependencies": { "hl-idl" :""}
 }

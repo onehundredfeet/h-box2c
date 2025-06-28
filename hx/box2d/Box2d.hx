@@ -108,10 +108,18 @@ abstract Body(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public function setTransform(position_x:Single, position_y:Single, angle:Single):Void { }
 	@:hlNative("Box2d", "Body_setTransformF2")
 	public function setTransformF(position:hvector.Float2, angle:Single):Void { }
+	@:hlNative("Box2d", "Body_createCapsuleShape6")
+	public function createCapsuleShape(def:ShapeDef, center_1_x:Single, center_1_y:Single, center_2_x:Single, center_2_y:Single, radius:Single):box2d.ShapeId return cast(0, ShapeId);
 	@:hlNative("Box2d", "Body_getTransform1")
 	public function getTransform(transform:Transform):Void { }
 	@:hlNative("Box2d", "Body_getTransformAsArray1")
 	public function getTransformAsArray(transform:hl.NativeArray<Single>):Void { }
+	@:hlNative("Box2d", "Body_getPositionX0")
+	public function getPositionX():Single return 0.;
+	@:hlNative("Box2d", "Body_getPositionY0")
+	public function getPositionY():Single return 0.;
+	@:hlNative("Box2d", "Body_setLinearVelocity2")
+	public function setLinearVelocity(linearVelocity_x:Single, linearVelocity_y:Single):Void { }
 }
 abstract World(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:hlNative("Box2d", "World_destroy0")
@@ -773,26 +781,26 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	function get_contactDampingRatio():Single return 0.;
 	@:hlNative("Box2d", "WorldContext_set_contactDampingRatio")
 	function set_contactDampingRatio(_v:Single):Single return 0.;
-	public var jointHertz(get, set) : Single;
-	@:hlNative("Box2d", "WorldContext_get_jointHertz")
-	function get_jointHertz():Single return 0.;
-	@:hlNative("Box2d", "WorldContext_set_jointHertz")
-	function set_jointHertz(_v:Single):Single return 0.;
-	public var jointDampingRatio(get, set) : Single;
-	@:hlNative("Box2d", "WorldContext_get_jointDampingRatio")
-	function get_jointDampingRatio():Single return 0.;
-	@:hlNative("Box2d", "WorldContext_set_jointDampingRatio")
-	function set_jointDampingRatio(_v:Single):Single return 0.;
 	public var enableSleep(get, set) : Bool;
 	@:hlNative("Box2d", "WorldContext_get_enableSleep")
 	function get_enableSleep():Bool return false;
 	@:hlNative("Box2d", "WorldContext_set_enableSleep")
 	function set_enableSleep(_v:Bool):Bool return false;
-	public var enableContinous(get, set) : Bool;
-	@:hlNative("Box2d", "WorldContext_get_enableContinous")
-	function get_enableContinous():Bool return false;
-	@:hlNative("Box2d", "WorldContext_set_enableContinous")
-	function set_enableContinous(_v:Bool):Bool return false;
+	public var enableContinuous(get, set) : Bool;
+	@:hlNative("Box2d", "WorldContext_get_enableContinuous")
+	function get_enableContinuous():Bool return false;
+	@:hlNative("Box2d", "WorldContext_set_enableContinuous")
+	function set_enableContinuous(_v:Bool):Bool return false;
+	public var contactSpeed(get, set) : Single;
+	@:hlNative("Box2d", "WorldContext_get_contactSpeed")
+	function get_contactSpeed():Single return 0.;
+	@:hlNative("Box2d", "WorldContext_set_contactSpeed")
+	function set_contactSpeed(_v:Single):Single return 0.;
+	public var maximumLinearSpeed(get, set) : Single;
+	@:hlNative("Box2d", "WorldContext_get_maximumLinearSpeed")
+	function get_maximumLinearSpeed():Single return 0.;
+	@:hlNative("Box2d", "WorldContext_set_maximumLinearSpeed")
+	function set_maximumLinearSpeed(_v:Single):Single return 0.;
 	@:hlNative("Box2d", "WorldContext_createWorld0")
 	public function createWorld():box2d.World return cast(0, World);
 	@:hlNative("Box2d", "WorldContext_destroyWorld1")
@@ -873,12 +881,24 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:native("hbox2c::Body::SetTransformF")
 	static function _r_setTransformF(This:Body, position:hvector.Float2, angle:Single):Void;
 	public inline function setTransformF(position:hvector.Float2, angle:Single):Void _r_setTransformF(this, cast position, cast angle);
+	@:native("hbox2c::Body::CreateCapsuleShape")
+	static function _r_createCapsuleShape(This:Body, def:ShapeDefPtr, center_1_x:Single, center_1_y:Single, center_2_x:Single, center_2_y:Single, radius:Single):ShapeId;
+	public inline function createCapsuleShape(def:ShapeDefPtr, center_1_x:Single, center_1_y:Single, center_2_x:Single, center_2_y:Single, radius:Single):ShapeId return _r_createCapsuleShape(this, cast def, cast center_1_x, cast center_1_y, cast center_2_x, cast center_2_y, cast radius);
 	@:native("hbox2c::Body::GetTransform")
 	static function _r_getTransform(This:Body, transform:TransformPtr):Void;
 	public inline function getTransform(transform:TransformPtr):Void _r_getTransform(this, cast transform);
 	@:native("hbox2c::Body::GetTransformAsArray")
 	static function _r_getTransformAsArray(This:Body, transform:Array<Single>):Void;
 	public inline function getTransformAsArray(transform:Array<Single>):Void _r_getTransformAsArray(this, cast transform);
+	@:native("hbox2c::Body::GetPositionX")
+	static function _r_getPositionX(This:Body):Single;
+	public inline function getPositionX():Single return _r_getPositionX(this);
+	@:native("hbox2c::Body::GetPositionY")
+	static function _r_getPositionY(This:Body):Single;
+	public inline function getPositionY():Single return _r_getPositionY(this);
+	@:native("hbox2c::Body::SetLinearVelocity")
+	static function _r_setLinearVelocity(This:Body, linearVelocity_x:Single, linearVelocity_y:Single):Void;
+	public inline function setLinearVelocity(linearVelocity_x:Single, linearVelocity_y:Single):Void _r_setLinearVelocity(this, cast linearVelocity_x, cast linearVelocity_y);
 }
 @:native("hb2WorldId") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${BOX2D_IDL_DIR}/box2d.idl")) extern abstract World(Int) from Int to Int {
 	@:native("hb2DestroyWorld")
@@ -940,12 +960,16 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public var quat_c : Single;
 	@:native("transform.q.s")
 	public var quat_s : Single;
-	public var body : Body;
+	public var body(default, set) : Body;
+	@:native("castBodyId")
+	function set_body(_v:Body):Body;
 	public var userData : Dynamic;
 	public var fellAsleep : Bool;
 	public inline function asPtr():box2d.BodyMoveEventPtr return cpp.Pointer.addressOf(this);
 }
 @:forward @:forwardStatics @:unreflective extern abstract BodyMoveEventPtr(cpp.Pointer<box2d.BodyMoveEvent>) from cpp.Pointer<box2d.BodyMoveEvent> to cpp.Pointer<box2d.BodyMoveEvent> {
+	@:native("castBodyId")
+	inline function set_body(_v:Body):Body return this.ref.set_body(_v);
 	public inline function asPtr():box2d.BodyMoveEventPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<box2d.BodyMoveEvent>):box2d.BodyMoveEventPtr return cpp.Pointer.addressOf(self);
@@ -962,21 +986,37 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static inline function fromCast(self:cpp.Reference<box2d.BodyEvents>):box2d.BodyEventsPtr return cpp.Pointer.addressOf(self);
 }
 @:native("hbox2c::SensorBeginTouchEvent") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${BOX2D_IDL_DIR}/box2d.idl")) extern class SensorBeginTouchEvent {
-	public var sensorShapeId : ShapeId;
-	public var visitorShapeId : ShapeId;
+	public var sensorShapeId(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_sensorShapeId(_v:ShapeId):ShapeId;
+	public var visitorShapeId(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_visitorShapeId(_v:ShapeId):ShapeId;
 	public inline function asPtr():box2d.SensorBeginTouchEventPtr return cpp.Pointer.addressOf(this);
 }
 @:forward @:forwardStatics @:unreflective extern abstract SensorBeginTouchEventPtr(cpp.Pointer<box2d.SensorBeginTouchEvent>) from cpp.Pointer<box2d.SensorBeginTouchEvent> to cpp.Pointer<box2d.SensorBeginTouchEvent> {
+	@:native("castShapeId")
+	inline function set_sensorShapeId(_v:ShapeId):ShapeId return this.ref.set_sensorShapeId(_v);
+	@:native("castShapeId")
+	inline function set_visitorShapeId(_v:ShapeId):ShapeId return this.ref.set_visitorShapeId(_v);
 	public inline function asPtr():box2d.SensorBeginTouchEventPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<box2d.SensorBeginTouchEvent>):box2d.SensorBeginTouchEventPtr return cpp.Pointer.addressOf(self);
 }
 @:native("hbox2c::SensorEndTouchEvent") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${BOX2D_IDL_DIR}/box2d.idl")) extern class SensorEndTouchEvent {
-	public var sensorShapeId : ShapeId;
-	public var visitorShapeId : ShapeId;
+	public var sensorShapeId(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_sensorShapeId(_v:ShapeId):ShapeId;
+	public var visitorShapeId(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_visitorShapeId(_v:ShapeId):ShapeId;
 	public inline function asPtr():box2d.SensorEndTouchEventPtr return cpp.Pointer.addressOf(this);
 }
 @:forward @:forwardStatics @:unreflective extern abstract SensorEndTouchEventPtr(cpp.Pointer<box2d.SensorEndTouchEvent>) from cpp.Pointer<box2d.SensorEndTouchEvent> to cpp.Pointer<box2d.SensorEndTouchEvent> {
+	@:native("castShapeId")
+	inline function set_sensorShapeId(_v:ShapeId):ShapeId return this.ref.set_sensorShapeId(_v);
+	@:native("castShapeId")
+	inline function set_visitorShapeId(_v:ShapeId):ShapeId return this.ref.set_visitorShapeId(_v);
 	public inline function asPtr():box2d.SensorEndTouchEventPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<box2d.SensorEndTouchEvent>):box2d.SensorEndTouchEventPtr return cpp.Pointer.addressOf(self);
@@ -1020,28 +1060,48 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static inline function fromCast(self:cpp.Reference<box2d.QueryFunc>):box2d.QueryFuncPtr return cpp.Pointer.addressOf(self);
 }
 @:native("b2ContactBeginTouchEvent") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${BOX2D_IDL_DIR}/box2d.idl")) extern class ContactBeginTouchEvent {
-	public var shapeIdA : ShapeId;
-	public var shapeIdB : ShapeId;
+	public var shapeIdA(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_shapeIdA(_v:ShapeId):ShapeId;
+	public var shapeIdB(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_shapeIdB(_v:ShapeId):ShapeId;
 	public inline function asPtr():box2d.ContactBeginTouchEventPtr return cpp.Pointer.addressOf(this);
 }
 @:forward @:forwardStatics @:unreflective extern abstract ContactBeginTouchEventPtr(cpp.Pointer<box2d.ContactBeginTouchEvent>) from cpp.Pointer<box2d.ContactBeginTouchEvent> to cpp.Pointer<box2d.ContactBeginTouchEvent> {
+	@:native("castShapeId")
+	inline function set_shapeIdA(_v:ShapeId):ShapeId return this.ref.set_shapeIdA(_v);
+	@:native("castShapeId")
+	inline function set_shapeIdB(_v:ShapeId):ShapeId return this.ref.set_shapeIdB(_v);
 	public inline function asPtr():box2d.ContactBeginTouchEventPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<box2d.ContactBeginTouchEvent>):box2d.ContactBeginTouchEventPtr return cpp.Pointer.addressOf(self);
 }
 @:native("b2ContactEndTouchEvent") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${BOX2D_IDL_DIR}/box2d.idl")) extern class ContactEndTouchEvent {
-	public var shapeIdA : ShapeId;
-	public var shapeIdB : ShapeId;
+	public var shapeIdA(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_shapeIdA(_v:ShapeId):ShapeId;
+	public var shapeIdB(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_shapeIdB(_v:ShapeId):ShapeId;
 	public inline function asPtr():box2d.ContactEndTouchEventPtr return cpp.Pointer.addressOf(this);
 }
 @:forward @:forwardStatics @:unreflective extern abstract ContactEndTouchEventPtr(cpp.Pointer<box2d.ContactEndTouchEvent>) from cpp.Pointer<box2d.ContactEndTouchEvent> to cpp.Pointer<box2d.ContactEndTouchEvent> {
+	@:native("castShapeId")
+	inline function set_shapeIdA(_v:ShapeId):ShapeId return this.ref.set_shapeIdA(_v);
+	@:native("castShapeId")
+	inline function set_shapeIdB(_v:ShapeId):ShapeId return this.ref.set_shapeIdB(_v);
 	public inline function asPtr():box2d.ContactEndTouchEventPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<box2d.ContactEndTouchEvent>):box2d.ContactEndTouchEventPtr return cpp.Pointer.addressOf(self);
 }
 @:native("hbox2c::ContactHitEvent") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${BOX2D_IDL_DIR}/box2d.idl")) extern class ContactHitEvent {
-	public var shapeIdA : ShapeId;
-	public var shapeIdB : ShapeId;
+	public var shapeIdA(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_shapeIdA(_v:ShapeId):ShapeId;
+	public var shapeIdB(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_shapeIdB(_v:ShapeId):ShapeId;
 	@:native("point.x")
 	public var point_x : Single;
 	@:native("point.y")
@@ -1054,6 +1114,10 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public inline function asPtr():box2d.ContactHitEventPtr return cpp.Pointer.addressOf(this);
 }
 @:forward @:forwardStatics @:unreflective extern abstract ContactHitEventPtr(cpp.Pointer<box2d.ContactHitEvent>) from cpp.Pointer<box2d.ContactHitEvent> to cpp.Pointer<box2d.ContactHitEvent> {
+	@:native("castShapeId")
+	inline function set_shapeIdA(_v:ShapeId):ShapeId return this.ref.set_shapeIdA(_v);
+	@:native("castShapeId")
+	inline function set_shapeIdB(_v:ShapeId):ShapeId return this.ref.set_shapeIdB(_v);
 	public inline function asPtr():box2d.ContactHitEventPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<box2d.ContactHitEvent>):box2d.ContactHitEventPtr return cpp.Pointer.addressOf(self);
@@ -1076,7 +1140,9 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static inline function fromCast(self:cpp.Reference<box2d.ContactEvents>):box2d.ContactEventsPtr return cpp.Pointer.addressOf(self);
 }
 @:native("hbox2c::RayResult") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${BOX2D_IDL_DIR}/box2d.idl")) extern class RayResult {
-	public var shapeId : ShapeId;
+	public var shapeId(default, set) : ShapeId;
+	@:native("castShapeId")
+	function set_shapeId(_v:ShapeId):ShapeId;
 	@:native("point.x")
 	public var point_x : Single;
 	@:native("point.y")
@@ -1090,6 +1156,8 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public inline function asPtr():box2d.RayResultPtr return cpp.Pointer.addressOf(this);
 }
 @:forward @:forwardStatics @:unreflective extern abstract RayResultPtr(cpp.Pointer<box2d.RayResult>) from cpp.Pointer<box2d.RayResult> to cpp.Pointer<box2d.RayResult> {
+	@:native("castShapeId")
+	inline function set_shapeId(_v:ShapeId):ShapeId return this.ref.set_shapeId(_v);
 	public inline function asPtr():box2d.RayResultPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<box2d.RayResult>):box2d.RayResultPtr return cpp.Pointer.addressOf(self);
@@ -1143,7 +1211,9 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static inline function fromCast(self:cpp.Reference<box2d.Polygon>):box2d.PolygonPtr return cpp.Pointer.addressOf(self);
 }
 @:native("hbox2c::BodyDef") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${BOX2D_IDL_DIR}/box2d.idl")) extern class BodyDef {
-	public var type : box2d.BodyType;
+	public var type(default, set) : box2d.BodyType;
+	@:native("setBodyDefType")
+	function set_type(_v:box2d.BodyType):box2d.BodyType;
 	public extern function setPosition(x:Single, y:Single):Void;
 	public var angle : Single;
 	public extern function setLinearVelocity(x:Single, y:Single):Void;
@@ -1168,6 +1238,8 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static extern function alloc():box2d.BodyDefPtr;
 	@:native("delete ")
 	public extern function free():Void;
+	@:native("setBodyDefType")
+	inline function set_type(_v:box2d.BodyType):box2d.BodyType return this.ref.set_type(_v);
 	public inline function setPosition(x:Single, y:Single):Void this.ref.setPosition(x, y);
 	public inline function setLinearVelocity(x:Single, y:Single):Void this.ref.setLinearVelocity(x, y);
 	public inline function setUserData(data:Dynamic):Void this.ref.setUserData(data);
@@ -1393,10 +1465,10 @@ abstract WorldContext(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public var hitEventThreshold : Single;
 	public var contactHertz : Single;
 	public var contactDampingRatio : Single;
-	public var jointHertz : Single;
-	public var jointDampingRatio : Single;
 	public var enableSleep : Bool;
-	public var enableContinous : Bool;
+	public var enableContinuous : Bool;
+	public var contactSpeed : Single;
+	public var maximumLinearSpeed : Single;
 	public extern function createWorld():World;
 	public extern function destroyWorld(id:World):Void;
 	public extern function step(worldId:World, timeStep:Single, subStepCount:Int):Void;

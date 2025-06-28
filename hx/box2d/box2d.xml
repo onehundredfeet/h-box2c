@@ -1,5 +1,5 @@
 <xml>
-   <set name="BOX2D_ROOT" value="${BOX2D_IDL_DIR}/../lib/release/box2d"/>
+   <set name="BOX2D_ROOT" value="${BOX2D_IDL_DIR}/../lib/debug/box2d"/>
 
    <cppflag value="-I${BOX2D_ROOT}/include"/>
    <cppflag value="-I${BOX2D_IDL_DIR}/../src"/>

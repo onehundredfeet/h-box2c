@@ -87,9 +87,24 @@ abstract Body(int64) {
 	[ Internal="hbox2c::Body::SetTransform"] void setTransform(float position_x, float position_y, float angle);
 	[ Internal="hbox2c::Body::SetTransformF"] void setTransformF(double2 position, float angle);
 
+	/// Create a capsule shape and attach it to a body. The shape definition and geometry are fully cloned.
+	/// Contacts are not created until the next time step.
+	///	@return the shape id for accessing the shape
+	[ Internal="hbox2c::Body::CreateCapsuleShape", Get="cast"] ShapeId createCapsuleShape( ShapeDef *def, float center_1_x, float center_1_y, float center_2_x, float center_2_y, float radius);
+
+
 
 	[ Internal="hbox2c::Body::GetTransform"] void getTransform(Transform *transform);
 	[ Internal="hbox2c::Body::GetTransformAsArray"] void getTransformAsArray(float [] transform); // 4 floats
+
+	/// Get the world position of a body. This is the location of the body origin.
+	[ Internal="hbox2c::Body::GetPositionX"] float getPositionX();
+	[ Internal="hbox2c::Body::GetPositionY"] float getPositionY();
+
+	/// Set the linear velocity of a body
+	[ Internal="hbox2c::Body::SetLinearVelocity"] void setLinearVelocity( float linearVelocity_x, float linearVelocity_y);
+
+
 
 };
 
@@ -320,7 +335,7 @@ object BodyDef {
 	
 	/// The body type: static, kinematic, or dynamic.
 	/// Note: if a dynamic body would have zero mass, the mass is set to one.
-	attribute BodyType type;
+	[Set="setBodyDefType"] attribute BodyType type;
 
 	/// The world position of the body. Avoid creating bodies at the origin
 	/// since this can lead to many overlapping shapes.
@@ -849,18 +864,15 @@ object WorldContext {
 	/// Contact bounciness. Non-dimensional.
 	attribute float contactDampingRatio;
 
-	/// Joint stiffness. Cycles per second.
-	attribute float jointHertz;
-
-	/// Joint bounciness. Non-dimensional.
-	attribute float jointDampingRatio;
-
 	/// Can bodies go to sleep to improve performance
 	attribute bool enableSleep;
 
 	/// Enable continuous collision
-	attribute bool enableContinous;
+	attribute bool enableContinuous;
 
+	attribute float contactSpeed;
+	attribute float maximumLinearSpeed;
+	
 	/// task system hookup
 	//attribute uint workerCount;
 
@@ -871,7 +883,7 @@ object WorldContext {
 	/// @param worldId the world to simulate
 	/// @param timeStep the amount of time to simulate, this should be a fixed number. Typically 1/60.
 	/// @param subStepCount the number of sub-steps, increasing the sub-step count can increase accuracy. Typically 4.
-	void step( [Get="castWorldId"] World worldId, float timeStep, int subStepCount);
+	void step( World worldId, float timeStep, int subStepCount);
 
 
 	[Static, Internal="hbox2c::WorldContext::EnableDebug"] void EnableDebug();

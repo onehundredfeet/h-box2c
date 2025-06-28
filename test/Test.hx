@@ -14,7 +14,7 @@ class Test {
         trace('Testing box 2c');
 
         WorldContext.EnableDebug();
-        var worldContext = WorldContextPtr.alloc(40);
+        var worldContext = WorldContextPtr.alloc(4);
 
         var world  = worldContext.createWorld();
 

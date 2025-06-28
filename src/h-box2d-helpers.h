@@ -1,6 +1,7 @@
 #pragma once
 
 #include "box2d/box2d.h"
+
 // #include "box2d/callbacks.h"
 // #include "box2d/hull.h"
 // #include "box2d/manifold.h"
@@ -416,29 +417,28 @@ class World {
 
         */
 };
-
+// b2GetLengthUnitsPerMeter() == 1.0 by defualt
 class BodyDef : public b2BodyDef {
    public:
-    BodyDef() {
-        type = b2_staticBody;
-        position = {0, 0};
-        linearVelocity = {0, 0};
-        rotation = b2MakeRot(0.0f);
-        angularVelocity = 0.0;
-        linearDamping = 0.0;
-        angularDamping = 0.0;
-        gravityScale = 1.0f;
-        sleepThreshold = 0.05f; // * b2_lengthUnitsPerMeter;
-        enableSleep = true;
-        isAwake = true;
-        isBullet = false;
-        isEnabled = true;
-        name = nullptr;
-        userData = nullptr;
-        motionLocks = {};
-        allowFastRotation = false;
+    BodyDef() : b2BodyDef(b2DefaultBodyDef()) {
+        // type = b2_staticBody;
+        // position = {0, 0};
+        // linearVelocity = {0, 0};
+        // rotation = b2Rot_identity;
+        // angularVelocity = 0.0;
+        // linearDamping = 0.0;
+        // angularDamping = 0.0;
+        // gravityScale = 1.0f;
+        // sleepThreshold = 0.05f; // * b2_lengthUnitsPerMeter;
+        // enableSleep = true;
+        // isAwake = true;
+        // isBullet = false;
+        // isEnabled = true;
+        // name = nullptr;
+        // userData = nullptr;
+        // motionLocks = {};
+        // allowFastRotation = false;
     }
-
 
 
     void setPosition(float x, float y) { position = {x, y}; }
@@ -447,11 +447,15 @@ class BodyDef : public b2BodyDef {
     void setUserData(vdynamic *data) { userData = data; }
     else
     #endif
+
+    void setBodyDefType(int inType ) {
+        type = static_cast<b2BodyType>(inType);
+    }
 };
 
 class ShapeDef : public b2ShapeDef {
    public:
-    ShapeDef() { static_cast<b2ShapeDef &>(*this) = b2DefaultShapeDef(); }
+    ShapeDef() : b2ShapeDef( b2DefaultShapeDef() ) {  }
     void clear() { static_cast<b2ShapeDef &>(*this) = b2DefaultShapeDef(); }
 };
 
@@ -573,8 +577,18 @@ class Body {
     //     *t = b2Body_GetWorldCenterOfMass(bodyId);
     // }
 
-    static void SetLinearVelocity(b2BodyId bodyId, float x, float y) {
+    static void SetLinearVelocity(hb2BodyId bodyId, float x, float y) {
         b2Body_SetLinearVelocity(bodyId, {x, y});
+    }
+
+    static float GetPositionX(hb2BodyId bodyId) {
+        b2Vec2 t = b2Body_GetPosition(bodyId);
+        return t.x;
+    }
+
+    static float GetPositionY(hb2BodyId bodyId) {
+        b2Vec2 t = b2Body_GetPosition(bodyId);
+        return t.y;
     }
 
     // static void GetLinearVelocity(b2BodyId bodyId, _h_float2 *velocity) {
@@ -715,7 +729,7 @@ class WorldContext : public b2WorldDef {
     int32_t m_taskCount;
     int m_threadCount;
 
-    WorldContext(int workerCount) {
+    WorldContext(int workerCount) : b2WorldDef(b2DefaultWorldDef()) {
         enqueueTask = EnqueueTask;
         finishTask = FinishTask;
         userTaskContext = this;
